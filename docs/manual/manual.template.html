@@ -129,8 +129,8 @@
   }
   .toc li.appendix { margin-top: 7mm; }
   h2.chapter {
-    break-before: page;
-    margin: 0 0 11pt;
+    break-before: auto;
+    margin: 22pt 0 11pt;
     padding-bottom: 8pt;
     border-bottom: 1px solid var(--rule);
     font-size: 22.5pt;
@@ -149,6 +149,7 @@
     letter-spacing: -.35px;
     break-after: avoid;
   }
+  .appendix.flow { break-before: auto; margin-top: 22pt; }
   h3 {
     margin: 15pt 0 6pt;
     font-size: 12.6pt;
@@ -239,7 +240,7 @@
     break-inside: avoid;
   }
   .mobile-pair figure {
-    width: 43%;
+    width: 36%;
     margin: 0;
   }
   .mobile-pair img { width: 100%; }
@@ -683,6 +684,7 @@ cd apui-web-0.2.7
     </tbody>
   </table>
 
+  <div class="no-break">
   <h3>9.3 保存、导入、导出的范围</h3>
   <p>这三个按钮都在设置页底部，作用范围是<strong>完整配置（全部可写字段）</strong>，不是当前分页。状态和关于页是只读的，因此不显示“保存设置”，但仍可导出/导入配置。</p>
   <ul>
@@ -692,6 +694,8 @@ cd apui-web-0.2.7
   </ul>
   <div class="note warn">
     <p><strong>不要提交空白配置。</strong>aplayer 的保存接口是整包覆盖；只改一项也要保证其他字段是当前有效值。不要在配置未完整载入时刷新/重复提交，不要用来路不明的 JSON 覆盖生产设备。保存只代表配置写入成功，底层声卡/DSD 是否立即生效由 aplayer 决定；切换后请重新播放或按现场规范重启服务验证。</p>
+  </div>
+
   </div>
 
   <h3>9.4 状态与关于</h3>
@@ -849,10 +853,23 @@ systemctl status aplayer
   <div class="callout">
     <p>请不要在公开 Issue 中粘贴口令、私钥、带内网地址/主机名的完整日志，或未脱敏的配置导出。APUI 是独立前端项目，不是 Album Player 官方支持渠道；aplayer 二进制/许可问题请联系其相应权利人。</p>
   </div>
+
+  <h3>13.3 可复制的支持信息模板</h3>
+  <pre>APUI 版本（侧栏）：
+aplayer 版本：
+浏览器 / 操作系统：
+页面或 hash 路由：
+复现步骤：
+期望结果：
+实际结果：
+Console 错误（脱敏）：
+?State（脱敏）：
+服务状态 / 最近日志（脱敏）：</pre>
+  <p class="tiny">提交前请删除内网地址、主机名、账号、令牌、音乐文件名中的隐私信息；截图里的播放器 IP 和曲库名也建议打码。</p>
 </section>
 
 <section>
-  <h2 class="appendix" id="appA">附录 A：用户协议、免责声明与第三方边界</h2>
+  <h2 class="appendix flow" id="appA">附录 A：用户协议、免责声明与第三方边界</h2>
   <p>本手册是使用说明，不构成法律意见，也不替代仓库根目录的 <code>LICENSE</code>。完整文本以发布包/仓库中的文件为准：</p>
   <table>
     <thead><tr><th style="width:30%">文件</th><th>内容</th></tr></thead>
@@ -876,6 +893,18 @@ systemctl status aplayer
 
   <h3>A.2 分发边界</h3>
   <p>APUI 发布包不包含 aplayer 二进制、TinyLMS 代码/资源或第三方封面/电台图片。再分发 APUI 时请保留 <code>LICENSE</code>、<code>NOTICE</code> 与相关法律文件，并遵守 Apache 2.0 的修改标注与通知义务。正式商用、再分发或高风险场景请自行取得法律意见。</p>
+
+  <h3>A.3 安全操作清单</h3>
+  <p class="chk">首次试听、切换 DSD/DoP、声卡或陌生电台前，先关闭功放或把下游音量降到最低。</p>
+  <p class="chk">只在可信局域网使用 7778；不要把无鉴权接口直接暴露到公网。</p>
+  <p class="chk">修改设置、升级、删除播放列表或更新电台目录前，备份 <code>config.dat</code>、<code>aplayer.dat</code> 与 <code>Radio/</code>。</p>
+  <p class="chk">保存/导入配置前确认当前配置已完整载入；不要用来源不明的 JSON 覆盖生产设备。</p>
+  <p class="chk">需要重启 aplayer 时使用 systemd/OpenRC 的正常 stop/restart，不要用 <code>kill -9</code> 处理音频进程。</p>
+  <p class="chk">升级或回滚后核对侧栏版本、<code>aplayer.html</code> 的资源名，并强刷浏览器。</p>
+  <p class="chk">对外分享截图/日志前脱敏 IP、主机名、账号、令牌与曲库文件名。</p>
+
+  <h3>A.4 获取完整文本</h3>
+  <p>完整协议与免责声明位于仓库根目录：<code>USER-AGREEMENT.md</code>、<code>DISCLAIMER.md</code>、<code>THIRD-PARTY-NOTICES.md</code>。发布包内也包含 <code>LICENSE</code> 与 <code>NOTICE</code>；如本手册摘要与正式文本不一致，以正式文本为准。</p>
 </section>
 
 <section>

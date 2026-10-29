@@ -1,0 +1,894 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>APUI 使用手册 0.2.7</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm 20mm; }
+  :root {
+    --blue: #2149f3;
+    --blue-soft: #eef2ff;
+    --ink: #1b1d22;
+    --muted: #68707e;
+    --rule: #e2e5eb;
+    --soft: #f7f8fa;
+    --code: #f3f5f8;
+  }
+  * { box-sizing: border-box; }
+  html { background: #fff; }
+  body {
+    margin: 0;
+    color: var(--ink);
+    background: #fff;
+    font-family: "Noto Sans CJK SC", "Noto Sans", "Segoe UI", sans-serif;
+    font-size: 10.2pt;
+    line-height: 1.82;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  p { margin: 0 0 8pt; }
+  a { color: var(--blue); text-decoration: none; }
+  strong { font-weight: 700; }
+  code {
+    padding: 1.2pt 4pt;
+    border-radius: 2px;
+    background: var(--code);
+    font-family: "Noto Sans Mono CJK SC", "DejaVu Sans Mono", monospace;
+    font-size: 8.8pt;
+    color: #2f3542;
+  }
+  pre {
+    margin: 8pt 0 12pt;
+    padding: 9pt 11pt;
+    background: var(--soft);
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    color: #2d3340;
+    font-family: "Noto Sans Mono CJK SC", "DejaVu Sans Mono", monospace;
+    font-size: 8.5pt;
+    line-height: 1.65;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .cover {
+    break-after: page;
+    min-height: 257mm;
+    display: flex;
+    flex-direction: column;
+  }
+  .cover-top { padding-top: 53mm; }
+  .kicker {
+    color: var(--blue);
+    font-size: 8.4pt;
+    font-weight: 700;
+    letter-spacing: 2.6px;
+  }
+  .cover h1 {
+    margin: 8mm 0 6mm;
+    font-size: 40pt;
+    line-height: 1.1;
+    letter-spacing: -1.2px;
+    font-weight: 700;
+  }
+  .cover-rule {
+    width: 78mm;
+    height: 1.3px;
+    background: var(--blue);
+    margin: 0 0 10mm;
+  }
+  .cover-sub {
+    font-size: 15pt;
+    line-height: 1.65;
+    color: #33373f;
+  }
+  .cover-sub2 {
+    margin-top: 2.5mm;
+    font-size: 11pt;
+    color: #5f6672;
+  }
+  .cover-meta {
+    margin-top: auto;
+    padding-bottom: 13mm;
+    color: #4f5663;
+    font-size: 9.8pt;
+    line-height: 1.9;
+  }
+  .cover-copy {
+    border-top: 1px solid var(--rule);
+    padding-top: 4.5mm;
+    color: #747b87;
+    font-size: 7.8pt;
+    line-height: 1.75;
+  }
+  .toc { break-after: page; }
+  .toc h2 {
+    margin: 0 0 15mm;
+    font-size: 24pt;
+    letter-spacing: -.5px;
+  }
+  .toc ol { margin: 0; padding: 0; list-style: none; }
+  .toc li {
+    display: flex;
+    align-items: baseline;
+    gap: 3mm;
+    padding: 3.1mm 0 2.5mm;
+    border-bottom: 1px dotted #cfd4dd;
+    font-size: 10.2pt;
+  }
+  .toc li .num {
+    width: 9mm;
+    flex: 0 0 auto;
+    color: #737a86;
+  }
+  .toc li .tt { flex: 1; }
+  .toc li .pg {
+    flex: 0 0 auto;
+    min-width: 9mm;
+    text-align: right;
+    color: #4e5562;
+  }
+  .toc li.appendix { margin-top: 7mm; }
+  h2.chapter {
+    break-before: page;
+    margin: 0 0 11pt;
+    padding-bottom: 8pt;
+    border-bottom: 1px solid var(--rule);
+    font-size: 22.5pt;
+    line-height: 1.25;
+    letter-spacing: -.55px;
+    font-weight: 700;
+    break-after: avoid;
+  }
+  h2.appendix {
+    break-before: page;
+    margin: 0 0 11pt;
+    padding-bottom: 7pt;
+    border-bottom: 1px solid var(--rule);
+    font-size: 20pt;
+    line-height: 1.3;
+    letter-spacing: -.35px;
+    break-after: avoid;
+  }
+  h3 {
+    margin: 15pt 0 6pt;
+    font-size: 12.6pt;
+    line-height: 1.45;
+    break-after: avoid;
+  }
+  h4 {
+    margin: 11pt 0 4pt;
+    font-size: 10.8pt;
+    break-after: avoid;
+  }
+  .lead { color: #4f5663; font-size: 10.4pt; }
+  .callout {
+    margin: 9pt 0 13pt;
+    padding: 9pt 12pt;
+    border-left: 3px solid var(--blue);
+    background: var(--blue-soft);
+    color: #303642;
+    font-size: 9.5pt;
+    line-height: 1.8;
+  }
+  .callout p:last-child { margin-bottom: 0; }
+  .note {
+    margin: 9pt 0 12pt;
+    padding: 8pt 11pt;
+    border: 1px solid var(--rule);
+    background: var(--soft);
+    color: #4c5360;
+    font-size: 9.2pt;
+    line-height: 1.75;
+  }
+  .note p:last-child { margin-bottom: 0; }
+  .warn {
+    border-left: 3px solid #c26a14;
+    background: #fff7ed;
+    color: #5d3b1a;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 8pt 0 13pt;
+    font-size: 8.8pt;
+    line-height: 1.65;
+    break-inside: auto;
+  }
+  thead { display: table-header-group; }
+  th {
+    background: #f3f4f7;
+    text-align: left;
+    font-weight: 700;
+    border: 1px solid var(--rule);
+    padding: 6pt 7pt;
+  }
+  td {
+    border: 1px solid var(--rule);
+    padding: 6pt 7pt;
+    vertical-align: top;
+  }
+  tr { break-inside: avoid; }
+  .small { font-size: 8.6pt; }
+  .muted { color: var(--muted); }
+  figure {
+    margin: 10pt 0 14pt;
+    break-inside: avoid;
+  }
+  figure img {
+    display: block;
+    width: 100%;
+    border: 1px solid #d4d9e2;
+    border-radius: 3px;
+    background: #111;
+  }
+  figure.mid img { width: 92%; margin: 0 auto; }
+  figure.narrow img { width: 78%; margin: 0 auto; }
+  figcaption {
+    margin-top: 5pt;
+    color: #767d89;
+    font-size: 8.1pt;
+    line-height: 1.55;
+    text-align: center;
+  }
+  .mobile-pair {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 9mm;
+    margin: 10pt 0 8pt;
+    break-inside: avoid;
+  }
+  .mobile-pair figure {
+    width: 43%;
+    margin: 0;
+  }
+  .mobile-pair img { width: 100%; }
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 7mm;
+    break-inside: avoid;
+  }
+  .two-col > div { min-width: 0; }
+  .steps {
+    margin: 6pt 0 12pt;
+    padding: 0;
+    list-style: none;
+    counter-reset: step;
+  }
+  .steps > li {
+    counter-increment: step;
+    position: relative;
+    padding: 0 0 9pt 13mm;
+    break-inside: avoid;
+  }
+  .steps > li::before {
+    content: counter(step);
+    position: absolute;
+    left: 0;
+    top: 1pt;
+    width: 7.5mm;
+    height: 7.5mm;
+    border-radius: 50%;
+    background: var(--blue);
+    color: #fff;
+    display: grid;
+    place-items: center;
+    font-size: 8.8pt;
+    font-weight: 700;
+  }
+  .steps strong { display: inline-block; }
+  .cols {
+    columns: 2;
+    column-gap: 9mm;
+    font-size: 9.2pt;
+  }
+  .cols p { break-inside: avoid; }
+  .chk {
+    margin: 4pt 0;
+    padding-left: 18pt;
+    text-indent: -18pt;
+  }
+  .chk::before {
+    content: "□";
+    color: var(--blue);
+    margin-right: 5pt;
+    font-size: 10pt;
+  }
+  .page-break { break-before: page; }
+  .license {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: #fff;
+    font-family: "Noto Sans", "Noto Sans CJK SC", sans-serif;
+    font-size: 8.0pt;
+    line-height: 1.55;
+    color: #30343b;
+    white-space: pre-wrap;
+    break-inside: auto;
+  }
+  .license + .license { margin-top: 8pt; }
+  .tiny { font-size: 7.5pt; line-height: 1.55; color: #5e6571; }
+  .no-break { break-inside: avoid; }
+</style>
+</head>
+<body>
+
+<section class="cover">
+  <div class="cover-top">
+    <div class="kicker">APUI · ALBUM PLAYER UI</div>
+    <h1>APUI 使用手册</h1>
+    <div class="cover-rule"></div>
+    <div class="cover-sub">把 Album Player 的曲库、电台与设置<br>放进一个更清晰的浏览器界面</div>
+    <div class="cover-sub2">装好、播起来、看懂队列、快速排障</div>
+  </div>
+  <div class="cover-meta">
+    版本 0.2.7<br>
+    兼容 Album Player for Linux 2.19<br>
+    2026-10-29
+  </div>
+  <div class="cover-copy">
+    版权所有 © 2026 harmonyosnews<br>
+    Apache License 2.0 · 不是 Album Player 官方组件
+  </div>
+</section>
+
+<section class="toc">
+  <h2>目录</h2>
+  <ol>
+    <li><span class="num">1.</span><span class="tt">它是什么，不做什么</span><span class="pg" data-toc="ch1">–</span></li>
+    <li><span class="num">2.</span><span class="tt">安装与首次使用</span><span class="pg" data-toc="ch2">–</span></li>
+    <li><span class="num">3.</span><span class="tt">五分钟出声</span><span class="pg" data-toc="ch3">–</span></li>
+    <li><span class="num">4.</span><span class="tt">界面总览</span><span class="pg" data-toc="ch4">–</span></li>
+    <li><span class="num">5.</span><span class="tt">首页、专辑、艺术家与搜索</span><span class="pg" data-toc="ch5">–</span></li>
+    <li><span class="num">6.</span><span class="tt">当前播放队列</span><span class="pg" data-toc="ch6">–</span></li>
+    <li><span class="num">7.</span><span class="tt">网络电台</span><span class="pg" data-toc="ch7">–</span></li>
+    <li><span class="num">8.</span><span class="tt">播放列表与文件浏览</span><span class="pg" data-toc="ch8">–</span></li>
+    <li><span class="num">9.</span><span class="tt">设置</span><span class="pg" data-toc="ch9">–</span></li>
+    <li><span class="num">10.</span><span class="tt">手机与平板</span><span class="pg" data-toc="ch10">–</span></li>
+    <li><span class="num">11.</span><span class="tt">常见问题</span><span class="pg" data-toc="ch11">–</span></li>
+    <li><span class="num">12.</span><span class="tt">安全与运维纪律</span><span class="pg" data-toc="ch12">–</span></li>
+    <li><span class="num">13.</span><span class="tt">版本、发布包与求助信息</span><span class="pg" data-toc="ch13">–</span></li>
+    <li class="appendix"><span class="num">A.</span><span class="tt">用户协议、免责声明与第三方边界</span><span class="pg" data-toc="appA">–</span></li>
+    <li><span class="num">B.</span><span class="tt">Apache License 2.0 全文</span><span class="pg" data-toc="appB">–</span></li>
+    <li><span class="num">C.</span><span class="tt">NOTICE 与第三方说明</span><span class="pg" data-toc="appC">–</span></li>
+  </ol>
+</section>
+
+<section>
+  <h2 class="chapter" id="ch1">1. 它是什么，不做什么</h2>
+  <div class="callout">
+    <p>这份手册写给使用者，不要求你懂 aplayer 的 HTTP 接口或前端构建。它按“安装 → 怎么用 → 怎么确认正在播放 → 出问题先看哪里”的顺序组织。更深入的接口、构建和部署细节见 <code>docs/04-程序接口文档.md</code> 与 <code>docs/03-开发手册.md</code>。</p>
+    <p>使用前请阅读 <strong>APUI 用户协议与免责声明</strong>。APUI 只是控制界面：音量、DSD/DoP、声卡和功放状态仍由 aplayer 与你的音频设备决定。首次试听、切换格式或声卡时，请先把下游音量调到最低。</p>
+  </div>
+
+  <p><strong>APUI（Album Player UI）是 Album Player for Linux 2.19 的一套独立 Web 操作界面。</strong>它是一组静态文件，安装时替换 <code>/opt/aplayer/aplayer.html</code> 并在 <code>/opt/aplayer/ui/</code> 下放置 JS/CSS；之后仍由 aplayer 自己在 <strong>7778</strong> 端口提供页面。APUI 不新增系统服务、不新增端口、不改音频引擎，也不包含 aplayer 二进制。</p>
+
+  <p>它和厂商自带 UI 是“同一台播放器的两套遥控器”：两者都通过 aplayer 的本地 HTTP 接口读取曲库、发送播放命令、读写配置。切换 UI 不需要换播放器；卸载 APUI 就恢复厂商页面。</p>
+
+  <table>
+    <thead><tr><th style="width:50%">APUI 负责</th><th>aplayer 负责</th></tr></thead>
+    <tbody>
+      <tr><td>曲库浏览、封面、专辑/艺术家/曲目页面、搜索</td><td>扫描媒体库、读取标签、封面与文件</td></tr>
+      <tr><td>播放/暂停/停止/上一首/下一首、进度、队列查看</td><td>解码、缓冲、Gapless、DSD/DoP、ALSA/Diretta 输出</td></tr>
+      <tr><td>网络电台分类、播放、收藏、添加/删除入口</td><td>电台目录、流连接、第三方图片/元数据</td></tr>
+      <tr><td>播放列表的保存、载入、删除界面</td><td>播放列表文件（<code>aplayer.dat</code>/<code>.ap2</code>）的实际读写</td></tr>
+      <tr><td>设置表单、配置导入/导出、状态展示</td><td>配置项的最终解释、声卡/DSD/音量行为</td></tr>
+      <tr><td>桌面/手机响应式布局、主题、全屏正在播放</td><td>音频时钟、设备能力和播放结果</td></tr>
+    </tbody>
+  </table>
+
+  <h3>1.1 三个必须记住的边界</h3>
+  <p><strong>第一，APUI 没有登录。</strong>它和 aplayer 的接口一样，默认只适合可信局域网。不要把 7778 端口直接暴露到公网；远程访问请自行加 VPN、反向代理认证或防火墙。</p>
+  <p><strong>第二，设置保存是“整包覆盖”。</strong>APUI 会把完整可写配置合并后提交；只改一个分页也会提交全部分页的当前值。改设置前请备份 <code>config.dat</code>，不要提交空白或来源不明的配置。</p>
+  <p><strong>第三，APUI 不是官方组件。</strong>Album Player、TinyLMS 及其商标属于各自权利人。APUI 只提供前端，不改变 aplayer 的许可，也不代表厂商背书。</p>
+
+  <h3>1.2 它不做什么</h3>
+  <table>
+    <thead><tr><th style="width:30%">不做</th><th>原因 / 你该去哪里</th></tr></thead>
+    <tbody>
+      <tr><td>解码、升频、EQ、房间校正</td><td>由 aplayer 与 DSP 设置负责；APUI 只改配置，不处理音频</td></tr>
+      <tr><td>编辑歌曲标签、移动/删除音乐文件</td><td>aplayer 没有这些接口；请在文件系统或标签工具中处理</td></tr>
+      <tr><td>队列重排、拖动排序</td><td>aplayer 没有队列编辑接口；APUI 提供只读查看与保存</td></tr>
+      <tr><td>多房间、多设备同步</td><td>不在本期范围；只控制当前 aplayer 实例</td></tr>
+      <tr><td>UPnP 渲染器（7779）</td><td>属于 <code>ap2renderer</code>，APUI 不修改它</td></tr>
+      <tr><td>用户账号、权限与审计</td><td>沿用 aplayer 的无鉴权本地接口</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2 class="chapter" id="ch2">2. 安装与首次使用</h2>
+  <p class="lead">APUI 0.2.7 的发布包是静态前端，不依赖 Node、Python 或额外的 Web 服务器。安装脚本会把入口文件热替换进现有 aplayer 目录，不需要重启 aplayer。</p>
+
+  <h3>2.1 安装前确认</h3>
+  <ul>
+    <li>目标机已经安装并运行 <strong>Album Player for Linux 2.19</strong>，7778 端口可访问。</li>
+    <li>你有目标机的 root 权限；APUI 安装会写 <code>/opt/aplayer</code>。</li>
+    <li>浏览器为现代 Chrome、Edge、Firefox 或 Safari；本项目主要在 Chromium 上验收。</li>
+    <li>准备好同版本的发布包 <code>apui-web-0.2.7.tar.gz</code> 及其 <code>.sha256</code>。</li>
+  </ul>
+  <pre># 在目标机先确认 aplayer Web 服务本身正常
+curl -fsS http://127.0.0.1:7778/ | head
+
+# 如果这一步失败，先不要安装 APUI；先让 aplayer 跑起来
+systemctl status aplayer
+# 或 OpenRC / GentooPlayer：
+# rc-service aplayer status</pre>
+
+  <h3>2.2 安装</h3>
+  <p>建议整个解包、进入目录、执行安装的过程都在同一个 root 会话里完成，避免文件属主和权限不一致。</p>
+  <pre>sudo -i
+cd /tmp
+tar -xzf apui-web-0.2.7.tar.gz
+cd apui-web-0.2.7
+./install.sh /opt/aplayer</pre>
+  <p>安装脚本会：</p>
+  <ul>
+    <li>把当前 <code>aplayer.html</code>、<code>aplayer.js</code>、<code>aplayer.css</code>、<code>config.dat</code> 和 <code>ui/</code> 备份到 <code>/opt/aplayer-ui-backup-&lt;时间戳&gt;/</code>；</li>
+    <li>把新的 <code>ui/app-*.js</code>、<code>ui/app-*.css</code> 放入 <code>/opt/aplayer/ui/</code>；</li>
+    <li>原子替换 <code>/opt/aplayer/aplayer.html</code>；</li>
+    <li>不重启、不停止 aplayer。</li>
+  </ul>
+
+  <div class="callout">
+    <p><strong>安装后先核对入口。</strong>浏览器打开 <code>http://&lt;播放器IP&gt;:7778/</code>，侧栏底部应显示 <code>UI 0.2.7 · aplayer 2.19</code>。如果仍显示旧版本，先强制刷新（Ctrl+F5 / Cmd+Shift+R），再检查 <code>/opt/aplayer/aplayer.html</code> 是否指向新的 <code>ui/app-*.js</code>。</p>
+  </div>
+
+  <h3>2.3 配置音乐根目录</h3>
+  <ol class="steps">
+    <li><strong>打开设置。</strong>点击右上角齿轮，不要点击浏览器菜单；进入“设置 → 常规”。</li>
+    <li><strong>填写根目录。</strong>在“根目录”填写 aplayer 能访问的媒体库路径，不带首尾斜杠。例如 <code>opt/aplayer/music</code> 或 <code>mnt/samba</code>。</li>
+    <li><strong>保存设置。</strong>点击页面底部“保存设置”，等待“设置已保存”提示。</li>
+    <li><strong>刷新并回到首页。</strong>点击顶部刷新按钮，或点击左上角 Album Player 标志回首页。首页会自动载入根目录曲库。</li>
+  </ol>
+  <p>APUI 0.2.7 不再把“上一次的当前播放列表”当成首页：初始化、回到首页时都会按根目录重新载入。根目录为空时，APUI 不会擅自载入系统 <code>/</code>，以免把系统目录当作媒体库。</p>
+
+  <h3>2.4 升级、回滚与验证</h3>
+  <p>升级时直接安装新版本发布包；安装脚本会重新生成备份。回滚使用安装包内的卸载脚本，把备份目录作为参数传入：</p>
+  <pre>./uninstall.sh /opt/aplayer-ui-backup-&lt;时间戳&gt; /opt/aplayer</pre>
+  <p>回滚同样不需要重启 aplayer；浏览器强刷即可。验证时至少检查三件事：</p>
+  <ul>
+    <li>页面能打开，侧栏版本号正确；</li>
+    <li>首页能看到根目录曲库，不只是一张专辑；</li>
+    <li>选中一张专辑能显示曲目，播放条有进度或明确的格式信息。</li>
+  </ul>
+</section>
+
+<section>
+  <h2 class="chapter" id="ch3">3. 五分钟出声</h2>
+  <p class="lead">假设 APUI 已安装、根目录已配置。下面按最短路径完成一次本地播放；每一步都用同一个判据：播放条是否进入播放状态。</p>
+  <ol class="steps">
+    <li><strong>打开首页。</strong>地址是 <code>http://&lt;播放器IP&gt;:7778/</code>。左侧“首页”应显示当前/上次专辑，下面“全部专辑”显示根目录曲库。</li>
+    <li><strong>选一张专辑。</strong>点击专辑卡片，打开专辑详情；确认曲目数量、标题和时长出现。</li>
+    <li><strong>开始播放。</strong>点击“播放全部”或某一首曲目。播放条左侧应出现曲名和封面，中央按钮变成暂停图标。</li>
+    <li><strong>确认真的在播。</strong>看进度时间是否前进、格式徽章是否出现（例如 <code>44.1KHZ / 16BIT / 2CH</code>）；不要只看按钮颜色。</li>
+    <li><strong>打开队列。</strong>点击播放按钮右侧的队列图标，确认当前曲目在弹窗中高亮；按 Esc 或“取消”关闭。</li>
+    <li><strong>停止或暂停。</strong>需要停下时点击播放条的暂停或停止；停止按钮在未播放时是灰色不可用的。</li>
+  </ol>
+
+  <figure>
+    <img src="assets/02-album.jpg" alt="APUI 专辑详情与曲目列表">
+    <figcaption>图 1：专辑详情。播放全部或单曲后，播放条进入播放状态；当前曲目在列表中有高亮。</figcaption>
+  </figure>
+
+  <h3>3.1 三个“没出声”先查的地方</h3>
+  <table>
+    <thead><tr><th style="width:28%">先看</th><th>正常表现</th><th>不正常时</th></tr></thead>
+    <tbody>
+      <tr><td>播放条</td><td>暂停图标、进度时间前进、格式徽章</td><td>按钮仍显示播放、时间停在 0：命令没有真正开始</td></tr>
+      <tr><td>设置 → 状态</td><td>“正在播放”为“是”，播放文件非空</td><td>检查 aplayer 输出设备、声卡与格式支持</td></tr>
+      <tr><td>音量与设备</td><td>音量设置与功放/耳机状态正常</td><td>APUI 不处理音频；检查 aplayer 配置与下游设备</td></tr>
+    </tbody>
+  </table>
+  <div class="note warn">
+    <p><strong>听感风险：</strong>APUI 不提供额外的软件音量或限幅。切换 DSD/DoP、声卡或陌生电台前，请先关闭功放或把下游音量降到最低；确认格式与设备后再逐步开声。</p>
+  </div>
+</section>
+
+<section>
+  <h2 class="chapter" id="ch4">4. 界面总览</h2>
+  <p class="lead">APUI 的界面分四层：左侧导航、顶部工具栏、内容区和底部播放条。桌面和手机使用同一套状态，只是排布不同。</p>
+
+  <figure>
+    <img src="assets/01-home.jpg" alt="APUI 首页"/>
+    <figcaption>图 2：桌面首页。左侧是“发现/我的音乐”导航；顶部是搜索、设置、刷新、主题与全屏；底部是播放条。</figcaption>
+  </figure>
+
+  <h3>4.1 左侧导航</h3>
+  <p>“发现”下有<strong>首页、专辑、艺术家、文件浏览</strong>；“我的音乐”下有<strong>网络电台、播放列表</strong>。这里没有“系统”或“关于”分栏：设置入口在右上角齿轮，关于内容在设置 → 关于。</p>
+
+  <h3>4.2 顶部工具栏</h3>
+  <table>
+    <thead><tr><th style="width:24%">控件</th><th>作用</th></tr></thead>
+    <tbody>
+      <tr><td>搜索框</td><td>按专辑名、艺术家、年份过滤；在其他页面输入会自动跳到“专辑”。</td></tr>
+      <tr><td>齿轮</td><td>进入设置。手机端也在右上角保留。</td></tr>
+      <tr><td>刷新</td><td>重新读取当前曲库/播放状态；根目录或文件变化后使用。</td></tr>
+      <tr><td>太阳/月亮</td><td>深色与浅色主题切换；偏好保存在本机浏览器。</td></tr>
+      <tr><td>全屏</td><td>浏览器全屏；手机端一般隐藏。进入全屏正在播放请点击播放条封面或标题。</td></tr>
+    </tbody>
+  </table>
+
+  <h3>4.3 底部播放条</h3>
+  <p>从左到右：封面与曲名（点击打开全屏正在播放）、上一首、停止、播放/暂停、下一首、当前播放队列、音量（仅当 aplayer 启用音量）。上方是进度条与左右时间。</p>
+  <ul>
+    <li><strong>格式徽章</strong>来自 aplayer 状态，例如采样率/位深/声道/码率；DSD 可能显示较高的采样率。</li>
+    <li><strong>进度条</strong>在本地文件播放时前进；网络电台或 <code>PlayingLen=0</code> 时可能保持 0，这是接口特性，不一定是故障。</li>
+    <li><strong>音量滑块</strong>只在 aplayer 的 <code>volume_enabled</code> 开启时显示；没有滑块不代表播放失败。</li>
+    <li><strong>队列按钮</strong>在播放控制区最右侧，图标为三条横线加圆点；下一章专门讲。</li>
+  </ul>
+  <div class="callout">
+    <p><strong>全屏正在播放：</strong>点击播放条左侧封面或曲名打开，按顶部向下箭头或再次点击关闭。全屏页只放大展示正在播放的信息和控制，不改变音频链路。</p>
+  </div>
+</section>
+
+<section>
+  <h2 class="chapter" id="ch5">5. 首页、专辑、艺术家与搜索</h2>
+  <h3>5.1 首页</h3>
+  <p>首页顶部是“当前/上次专辑”Hero，适合继续上次的收听；下面“全部专辑”展示根目录曲库的全部专辑。点击卡片打开专辑，悬停卡片可以快速播放。Hero 的“播放”按钮会从该专辑第一首开始；如果它正是当前播放的专辑，则按钮变为暂停/继续。</p>
+
+  <h3>5.2 专辑与曲目</h3>
+  <ul>
+    <li>“专辑”页展示完整网格，并按当前搜索词过滤；搜索只匹配专辑名、艺术家、年份等元数据，不搜索曲目内容。</li>
+    <li>打开专辑后可以看到曲目列表、时长与当前曲目高亮；“播放全部”从第一首开始。</li>
+    <li>封面来自 aplayer 的封面目录；没有封面时显示占位图，不影响播放。</li>
+    <li>APUI 不编辑标签、不改文件名；标签问题请在音乐文件或标签工具中处理。</li>
+  </ul>
+
+  <h3>5.3 艺术家</h3>
+  <p>“艺术家”按 aplayer 的 <code>AuthorList</code> 聚合。点击艺术家进入其专辑列表，再打开具体专辑。没有艺术家头像时使用首字母/渐变占位；同一个艺术家名称的写法不同，会被视为不同条目。</p>
+
+  <h3>5.4 搜索</h3>
+  <p>搜索是浏览器端的即时过滤，适合在已经载入的曲库中快速找专辑。清空搜索框恢复全部结果。库很大时，第一次载入会花一些时间读取专辑和封面；如果页面一直为空，先看下一章的“首页没有专辑”。</p>
+</section>
+
+<section>
+  <h2 class="chapter" id="ch6">6. 当前播放队列</h2>
+  <p class="lead">队列不是另一套播放引擎，而是把 aplayer 的“当前播放列表”按专辑分组展示出来。它解决两个问题：我现在在放什么，以及这一串曲目怎么快速保存。</p>
+
+  <h3>6.1 打开与阅读</h3>
+  <ol class="steps">
+    <li><strong>点击队列按钮。</strong>位置在播放条播放/下一首控制的右侧，图标像一份列表。弹窗从播放条上方出现。</li>
+    <li><strong>看当前高亮。</strong>当前专辑有浅色背景，当前曲目左侧显示播放小三角；如果刚载入根库，当前指针可能指向新列表中的对应位置。</li>
+    <li><strong>展开其他专辑。</strong>专辑行右侧显示“点击载入曲目”时，点击专辑行读取该专辑的曲目；读取完成后直接展开。</li>
+    <li><strong>点曲目播放。</strong>点击队列中的曲目会立即播放并关闭弹窗；播放条与队列高亮同步。</li>
+    <li><strong>关闭。</strong>使用右上角 ×、“取消”、点击遮罩或按 Esc；焦点会回到队列按钮。</li>
+  </ol>
+
+  <figure>
+    <img src="assets/04-queue.jpg" alt="当前播放队列弹窗"/>
+    <figcaption>图 3：当前播放队列。按专辑分组；当前专辑和当前曲目有强调色；底部是“保存为播放列表”和“取消”。</figcaption>
+  </figure>
+
+  <h3>6.2 大曲库为什么只展开一张</h3>
+  <p>队列超过 12 张专辑时，APUI 只预载当前专辑的曲目，其他专辑点击时再读取。这是为了避免一次打开队列就向 aplayer 发几十个 <code>GetSongs</code> 请求、把界面和轮询拖慢。专辑行会明确显示“点击载入曲目”；这不是队列缺歌。</p>
+
+  <h3>6.3 保存为播放列表</h3>
+  <p>点击“保存为播放列表”，输入名称并确认。APUI 调用 aplayer 的 <code>SavePlaylist</code>，把<strong>当前播放列表</strong>保存成 <code>.ap2</code>；随后可在“播放列表”页看到并载入。保存成功会关闭队列弹窗并显示 Toast。</p>
+  <ul>
+    <li>名称不能为空；包含路径分隔符、控制字符等不安全字符时，APUI 会替换为短横线。</li>
+    <li>如果当前队列是整个根库，保存的就是整个根库列表，文件可能较大。</li>
+    <li>保存失败时不要反复点；先检查 aplayer 服务、目录权限和磁盘空间，再重试。</li>
+  </ul>
+
+  <div class="callout">
+    <p><strong>首页与队列的关系：</strong>APUI 在回到首页时会载入根目录曲库，这会改变 aplayer 的“当前播放列表”视图，因此队列也随之变成根库。要保存某个已载入的播放列表，请先在“播放列表”页载入它，再打开队列保存；不要在回到首页后误存整库。</p>
+  </div>
+  <p class="muted">限制：aplayer 没有队列重排/删除接口，APUI 不提供拖动排序，也不会伪造一个只在浏览器里存在的队列。</p>
+</section>
+
+<section>
+  <h2 class="chapter" id="ch7">7. 网络电台</h2>
+  <p class="lead">点击左侧“网络电台”会直接进入电台模式，不需要再点“进入电台模式”。电台分类和本地专辑使用两套独立数据，不会把本地专辑混进电台页。</p>
+
+  <figure>
+    <img src="assets/08-radio.jpg" alt="网络电台分类页"/>
+    <figcaption>图 4：网络电台。顶部是当前电台/添加/收藏/退出；下面是分类卡片。分类数量取决于 aplayer 的电台目录。</figcaption>
+  </figure>
+
+  <h3>7.1 播放一个电台</h3>
+  <ol class="steps">
+    <li>在“分类”中点击一个分类，展开该分类下的电台列表。</li>
+    <li>点击电台条目开始播放；播放条显示电台标题或流名称，格式徽章可能显示码率。</li>
+    <li>正在播放时，可以点“收藏当前”保存到 aplayer 的电台收藏。</li>
+    <li>需要添加自定义电台时，点“添加电台”，填写名称、流地址和可选分类；需要删除时，在对应条目上执行删除并确认。</li>
+    <li>点“退出电台模式”，或点击左侧其他分栏，APUI 会自动退出电台并恢复本地模式。</li>
+  </ol>
+
+  <h3>7.2 电台页的边界</h3>
+  <ul>
+    <li>电台目录来自 aplayer；分类/条目为空时，先在“设置 → 解码器 → 电台”检查目录日期，必要时更新目录。</li>
+    <li>电台流可能没有总时长，进度条保持 0；右侧时间可能不推进，这是流媒体特性。</li>
+    <li>电台图片、标题与流内容可能来自第三方，APUI 只做展示；请自行确认来源合法与网络安全。</li>
+    <li>退出电台模式时如果正在播放本地音乐，aplayer 会按自己的状态恢复；不要依赖 APUI 保证“原曲从原位置继续”。</li>
+  </ul>
+
+  <div class="note">
+    <p><strong>看不到分类或一直显示正在进入：</strong>先确认 aplayer 正在运行且网络可用，再点页面上的“重试”；仍失败时退出 APUI 页面重新打开，或在 aplayer 侧确认广播目录存在。电台目录更新会联网并修改本地目录，属于需要确认的操作。</p>
+  </div>
+</section>
+
+<section>
+  <h2 class="chapter" id="ch8">8. 播放列表与文件浏览</h2>
+  <p class="lead">这两个入口经常被混用：播放列表是 aplayer 保存的“歌单文件”，文件浏览是浏览服务器目录。前者用于收藏一组曲目，后者用于把某个目录载入当前列表。</p>
+
+  <figure>
+    <img src="assets/10-playlists.jpg" alt="播放列表页面"/>
+    <figcaption>图 5：播放列表页。只显示 aplayer 保存的 <code>aplayer.dat</code> 与 <code>.ap2</code>；不展示文件系统目录。</figcaption>
+  </figure>
+
+  <h3>8.1 播放列表</h3>
+  <ul>
+    <li><strong>aplayer.dat</strong> 是 aplayer 最近一次使用的列表，通常保留为系统条目；APUI 不提供直接删除。</li>
+    <li><strong>.ap2</strong> 是通过“保存当前”或队列弹窗“保存为播放列表”生成的可载入列表，可以删除。</li>
+    <li>“载入”会把该列表设为 aplayer 当前播放列表，然后跳到“专辑”页显示其中内容。它不会复制音乐文件。</li>
+    <li>“保存当前”保存的是 aplayer 当前播放列表；如果当前列表是根库，就会保存整库。</li>
+    <li>播放列表保存/删除后点击“刷新”，确认列表变化；操作失败时先检查 aplayer 目录权限。</li>
+  </ul>
+
+  <h3>8.2 文件浏览</h3>
+  <p>“文件浏览”展示 aplayer 的 <code>Drives</code> 目录树。点击目录行可以展开/折叠；选择目录后载入，会把该目录下的音乐作为当前播放列表。展开/折叠是 aplayer 的切换语义，不是浏览器的树控件。</p>
+  <div class="note warn">
+    <p><strong>只载入你认识的目录。</strong>文件浏览能显示 aplayer 可访问的目录；误载系统目录会把无关文件当成媒体库。它也不会复制、移动或删除文件。载入前确认路径，并在设置里保留正确的音乐根目录作为首页来源。</p>
+  </div>
+
+  <table>
+    <thead><tr><th style="width:22%">问题</th><th>播放列表</th><th>文件浏览</th></tr></thead>
+    <tbody>
+      <tr><td>数据来源</td><td>aplayer 保存的列表文件</td><td>aplayer 可见的目录树</td></tr>
+      <tr><td>典型用途</td><td>收藏一组曲目、恢复歌单</td><td>临时载入某张专辑/目录</td></tr>
+      <tr><td>是否复制文件</td><td>否</td><td>否</td></tr>
+      <tr><td>是否出现在右侧导航</td><td>是（我的音乐）</td><td>是（发现）</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2 class="chapter" id="ch9">9. 设置</h2>
+  <p class="lead">设置页把 aplayer 的配置按官方习惯分成 7 个主分页，并中文化了常用字段。大多数默认值不需要动；只改你理解的项，并先备份配置。</p>
+
+  <h3>9.1 七个主分页</h3>
+  <table>
+    <thead><tr><th style="width:22%">分页</th><th>内容</th><th style="width:30%">子分页</th></tr></thead>
+    <tbody>
+      <tr><td>常规</td><td>封面目录、根目录、曲间静音、16/24 bit、播放模式、预载缓冲、Gapless、音量、自动下一专辑、cue/tags、ALSA 周期/缓冲</td><td>—</td></tr>
+      <tr><td>解码器</td><td>DSD 输出/上限、PCM 采样率与音量、DVD-A、电台目录与网络参数</td><td>DSD / DVD-A / 电台</td></tr>
+      <tr><td>DSP</td><td>多声道转换、声道交换、相位、PCM→DSD、重采样、卷积器</td><td>转换器 / 重采样器 / 卷积器</td></tr>
+      <tr><td>系统</td><td>进程优先级、Nice、内存锁定、核心选择</td><td>—</td></tr>
+      <tr><td>状态</td><td>只读运行状态、输出格式、正在播放文件</td><td>—</td></tr>
+      <tr><td>声卡</td><td>asound.conf、可用声卡、当前声卡、Scream 桥</td><td>—</td></tr>
+      <tr><td>关于</td><td>APUI/aplayer 版本、许可证、官方与仓库链接、Credits</td><td>—</td></tr>
+    </tbody>
+  </table>
+
+  <figure>
+    <img src="assets/06-settings-crop.jpg" alt="APUI 设置页"/>
+    <figcaption>图 6：设置页（常规）上半部分。左侧是 7 个主分页；保存、导入、导出在页面底部，作用范围是整个配置。</figcaption>
+  </figure>
+
+  <h3>9.2 最常改的字段</h3>
+  <table>
+    <thead><tr><th style="width:26%">字段</th><th>用途</th><th style="width:33%">建议</th></tr></thead>
+    <tbody>
+      <tr><td>根目录</td><td>首页曲库的根</td><td>不带首尾斜杠，如 <code>mnt/samba</code>；保存后刷新</td></tr>
+      <tr><td>封面目录</td><td>aplayer 查找封面的位置</td><td>保持默认或与媒体库结构一致</td></tr>
+      <tr><td>预载缓冲 / Gapless</td><td>播放缓冲与无缝衔接</td><td>没有特殊需求保持默认；改动后重新播放验证</td></tr>
+      <tr><td>启用音量控制</td><td>是否显示播放条音量</td><td>关闭时 APUI 不显示音量滑块，这是正常现象</td></tr>
+      <tr><td>ALSA 周期 / 缓冲</td><td>输出延迟与稳定性</td><td>只在理解声卡链路时修改；异常先恢复默认</td></tr>
+      <tr><td>DSD 输出 / 上限</td><td>原生 DSD、DoP、PCM 转换</td><td>按 DAC/目标能力选择；不确定时用默认或 auto</td></tr>
+      <tr><td>重采样器</td><td>SoXR 目标采样率/质量</td><td>Bit-Perfect 场景通常不需要开启</td></tr>
+      <tr><td>声卡 / Scream 桥</td><td>ALSA 设备与网络输出</td><td>切换声卡会改变输出链路，先降低音量</td></tr>
+    </tbody>
+  </table>
+
+  <h3>9.3 保存、导入、导出的范围</h3>
+  <p>这三个按钮都在设置页底部，作用范围是<strong>完整配置（全部可写字段）</strong>，不是当前分页。状态和关于页是只读的，因此不显示“保存设置”，但仍可导出/导入配置。</p>
+  <ul>
+    <li><strong>保存设置：</strong>先读取当前完整配置，合并表单改动，按可写字段白名单提交，再回读校验。成功会提示“设置已保存”。</li>
+    <li><strong>导出配置：</strong>下载当前完整配置的 JSON；出于安全考虑，不导出 <code>api_key</code>/<code>api_cx</code> 等敏感字段。</li>
+    <li><strong>导入配置：</strong>选择 JSON 文件后会明确确认；确认后只覆盖可写字段，不修改只读/敏感字段。导入前先备份 <code>config.dat</code>。</li>
+  </ul>
+  <div class="note warn">
+    <p><strong>不要提交空白配置。</strong>aplayer 的保存接口是整包覆盖；只改一项也要保证其他字段是当前有效值。不要在配置未完整载入时刷新/重复提交，不要用来路不明的 JSON 覆盖生产设备。保存只代表配置写入成功，底层声卡/DSD 是否立即生效由 aplayer 决定；切换后请重新播放或按现场规范重启服务验证。</p>
+  </div>
+
+  <h3>9.4 状态与关于</h3>
+  <p>“状态”是只读页面：可以核对 aplayer 是否 root、进程优先级、16/24/32 bit 支持、原生 DSD、正在播放文件、输出和 ALSA 周期/缓冲。它适合在“没声音”时先判断是环境问题还是控制问题；“关于”展示版本、许可证、官方/仓库链接和 Credits，没有单独的 About 页面。</p>
+  <figure class="narrow">
+    <img src="assets/06c-settings-status.jpg" alt="设置状态页"/>
+    <figcaption>图 7：设置 → 状态。只读；如果你在排查输出问题，先记录这里的“正在播放/播放文件/输出/ALSA”几行。</figcaption>
+  </figure>
+
+  <h4>状态字段怎么读</h4>
+  <table>
+    <thead><tr><th style="width:30%">字段</th><th>含义 / 排查用途</th></tr></thead>
+    <tbody>
+      <tr><td>Root 用户</td><td>aplayer 进程是否以 root 运行；与现场部署方式有关，不是 APUI 的权限设置。</td></tr>
+      <tr><td>已用核心 / 优先级 / Nice</td><td>CPU 亲和与调度；只在明确知道实时性需求时修改，改后对比播放稳定性。</td></tr>
+      <tr><td>支持 16/24/32 bit、原生 DSD</td><td>设备能力摘要；“no”表示当前链路没有声明该能力，不代表文件一定不能转成 PCM 播放。</td></tr>
+      <tr><td>正在播放 / 播放文件</td><td>最直接的“有没有开始播放”证据；文件为空时不要先怀疑进度条。</td></tr>
+      <tr><td>源 / 输出</td><td>当前输入来源与输出后端；排查“有进度但没声音”时，先看输出是否为空/错误。</td></tr>
+      <tr><td>ALSA 周期 / 缓冲</td><td>输出缓冲参数；与“常规”里的值对照，异常时恢复现场基线。</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2 class="chapter" id="ch10">10. 手机与平板</h2>
+  <p class="lead">手机端不是缩小的桌面：底部导航替代侧栏，播放条压缩，队列变成底部弹层，设置页会隐藏左侧分页导航并把表单改成单列。</p>
+
+  <div class="mobile-pair">
+    <figure>
+      <img src="assets/11-mobile-home.jpg" alt="手机首页"/>
+      <figcaption>首页：顶部搜索/设置/主题，底部四项导航</figcaption>
+    </figure>
+    <figure>
+      <img src="assets/12-mobile-queue.jpg" alt="手机队列"/>
+      <figcaption>队列：底部弹层，保存/取消固定在底部</figcaption>
+    </figure>
+  </div>
+
+  <h3>10.1 布局与操作</h3>
+  <ul>
+    <li>底部导航固定为<strong>首页、专辑、电台、设置</strong>；文件浏览、艺术家、播放列表仍可通过其他入口/桌面访问。</li>
+    <li>播放条在底部导航上方，队列按钮在播放控制最右侧；队列弹层不会盖住整个屏幕，仍能看到播放条。</li>
+    <li>点击播放条封面/曲名打开全屏正在播放；全屏页按手机宽度单列排布。</li>
+    <li>设置页在窄屏下隐藏左侧分页导航，主分页以横向标签展示；开关行右对齐，文本输入占满一行。</li>
+    <li>横屏/竖屏都可用；如果系统有安全区，底部导航会预留空间。</li>
+  </ul>
+
+  <h3>10.2 兼容性</h3>
+  <p>本项目主要在 Chromium（桌面/Android）和移动视口模拟下验收；Firefox、Safari 和 iOS/Android 真机的逐项验收仍在后续清单中。遇到布局问题，先强制刷新、更新到 0.2.7，并提供浏览器与系统版本、截图和页面地址。</p>
+</section>
+
+<section>
+  <h2 class="chapter" id="ch11">11. 常见问题</h2>
+  <p class="lead">排障顺序：先确认页面能打开，再确认曲库/当前列表，再确认 aplayer 输出；不要把“音频设备问题”误判成 UI 问题。</p>
+
+  <table>
+    <thead><tr><th style="width:21%">现象</th><th style="width:36%">先看什么</th><th>常见原因与处理</th></tr></thead>
+    <tbody>
+      <tr><td>页面打不开</td><td>7778 是否监听；aplayer 是否运行；浏览器地址是否为根路径</td><td>先让 aplayer 正常；不要访问 <code>/?unknown</code> 这类查询，aplayer 会返回 Command Not Found。检查防火墙/端口。</td></tr>
+      <tr><td>页面是旧版，或侧栏版本不对</td><td>侧栏版本号；<code>aplayer.html</code> 引用的 <code>ui/app-*.js</code></td><td>强制刷新；确认安装脚本已替换入口；重新安装同版本发布包。</td></tr>
+      <tr><td>首页没有专辑</td><td>设置 → 常规 → 根目录；文件浏览</td><td>根目录为空/写法不对（不要首尾斜杠）；目录对 aplayer 不可见；保存后刷新。</td></tr>
+      <tr><td>首页只有一张专辑/上次的列表</td><td>版本是否为 0.2.7；根目录是否配置</td><td>0.2.7 会回到根目录；旧版请升级。根目录为空时不会猜库，需先配置。</td></tr>
+      <tr><td>点播放没声音</td><td>播放条时间、格式；设置 → 状态；aplayer 日志</td><td>APUI 只发命令；检查 aplayer 输出设备、音量、格式支持、另一台机器是否占用设备。</td></tr>
+      <tr><td>进度条一直是 0</td><td>是否电台/流；<code>ProgressVisible</code>/<code>PlayingLen</code></td><td>流媒体没有总时长时正常；本地文件仍为 0 则查 aplayer 状态或格式。</td></tr>
+      <tr><td>音量滑块不见了</td><td>设置 → 音量控制</td><td>aplayer 未启用音量控制时按设计隐藏；不是 UI 缺失。</td></tr>
+      <tr><td>设置保存后没变化</td><td>Toast 是否“已保存”；设置 → 状态</td><td>确认保存的是完整配置；底层声卡/DSD 可能需要重新播放或按 aplayer 规范重启后生效。</td></tr>
+      <tr><td>设置保存失败</td><td>错误提示；根目录/封面；<code>config.dat</code> 备份</td><td>字段校验失败或 aplayer 无法写入；恢复备份后再改，逐项提交。</td></tr>
+      <tr><td>导入配置后不对</td><td>导入确认框；JSON 来源；备份</td><td>导入覆盖可写字段；用错文件就回滚 <code>config.dat</code>，不要在生产库上试未知配置。</td></tr>
+      <tr><td>电台分类为空/卡住</td><td>网络；aplayer 电台目录；页面重试</td><td>退出再进入；更新/替换目录需确认；检查 aplayer 的电台文件与网络。</td></tr>
+      <tr><td>队列只展开一张专辑</td><td>队列专辑行的“点击载入曲目”</td><td>大曲库的按需加载；点击专辑行读取，不是缺歌。</td></tr>
+      <tr><td>保存播放列表失败</td><td>名称为空？aplayer 目录权限/磁盘</td><td>换名称；确认 aplayer 可写播放列表目录；保存的是当前列表，不是单曲。</td></tr>
+      <tr><td>手机布局溢出/按钮被挡</td><td>浏览器缩放、横竖屏、版本</td><td>强制刷新并升级 0.2.7；仍异常请提供设备、浏览器版本和截图。</td></tr>
+      <tr><td>升级 aplayer 后界面异常</td><td>aplayer 版本；接口是否变化</td><td>APUI 只适配 2.19 接口；升级前回归，必要时回滚 aplayer 或安装匹配版本。</td></tr>
+    </tbody>
+  </table>
+
+  <div class="note">
+    <p>如果问题只在某个浏览器/设备出现，先在另一个浏览器复现；只在一个浏览器出现时，优先检查缓存、扩展和缩放，而不是改 aplayer 配置。</p>
+  </div>
+</section>
+
+<section>
+  <h2 class="chapter" id="ch12">12. 安全与运维纪律</h2>
+  <h3>12.1 网络边界</h3>
+  <ul>
+    <li>APUI 与 aplayer 的 HTTP 接口<strong>没有登录、没有权限分级</strong>；只应在可信局域网使用。</li>
+    <li>不要把 7778 直接映射到公网，也不要在公开演示环境暴露真实媒体库。</li>
+    <li>需要远程访问时，使用 VPN、带认证的反向代理和访问控制；APUI 本身不提供 TLS。</li>
+    <li>浏览器端没有敏感账号，但配置、曲库名、电台和日志可能包含个人信息；截图/日志外发前先脱敏。</li>
+  </ul>
+
+  <h3>12.2 变更前备份</h3>
+  <p>APUI 的设置保存会写 aplayer 的 <code>config.dat</code>；aplayer 也可能在运行、切换声卡或更新目录时改写配置/列表。修改前至少备份：</p>
+  <ul>
+    <li><code>/opt/aplayer/config.dat</code>（以及现场使用的其它配置）</li>
+    <li><code>/opt/aplayer/aplayer.dat</code>、用户 <code>.ap2</code> 播放列表</li>
+    <li><code>/opt/aplayer/Radio/</code> 与电台目录（如使用）</li>
+    <li>APUI 的配置导出 JSON，以及必要的音乐元数据/封面</li>
+  </ul>
+
+  <h3>12.3 安装、升级与停止</h3>
+  <ul>
+    <li>安装/回滚使用发布包内的 <code>install.sh</code> / <code>uninstall.sh</code>；安装脚本自带备份。</li>
+    <li>APUI 只替换静态文件，不控制 aplayer 进程；不要为了刷新页面而重启或强杀 aplayer。</li>
+    <li>需要停止/重启 aplayer 时使用现场服务管理方式（例如 systemd 或 OpenRC 的正常 stop/restart）；不要使用 <code>kill -9</code> 处理音频进程。</li>
+    <li>升级后核对侧栏版本和 <code>aplayer.html</code> 的资源名；回滚时使用对应时间戳的备份目录。</li>
+  </ul>
+
+  <h3>12.4 排障时的取证</h3>
+  <pre># 页面入口是否正常
+curl -fsS http://127.0.0.1:7778/ | head
+
+# aplayer 当前状态（可直接看到 Playing/Album/Song/RadioMode）
+curl -s 'http://127.0.0.1:7778/?State'
+
+# aplayer 服务状态（按现场 init 系统选择）
+systemctl status aplayer
+# rc-service aplayer status</pre>
+  <p>日志位置由 aplayer 决定；常见为 <code>/opt/aplayer/aplayer.log</code>。对外求助时请提供：APUI 版本、aplayer 版本、浏览器/系统、复现步骤、截图/控制台错误、<code>?State</code> 输出和最近日志的脱敏片段。</p>
+</section>
+
+<section>
+  <h2 class="chapter" id="ch13">13. 版本、发布包与求助信息</h2>
+  <table>
+    <thead><tr><th style="width:28%">项目</th><th>内容</th></tr></thead>
+    <tbody>
+      <tr><td>APUI 版本</td><td>0.2.7（2026-10-29）</td></tr>
+      <tr><td>兼容</td><td>Album Player for Linux 2.19；Web 端口 7778</td></tr>
+      <tr><td>发布包</td><td><code>apui-web-0.2.7.tar.gz</code>（约 47 KB）</td></tr>
+      <tr><td>入口资源</td><td><code>ui/app-o4obOtpw-.js</code> / <code>ui/app-Bo8oRZkx.css</code></td></tr>
+      <tr><td>SHA256</td><td><code>0ff3a844b71524015e75d825cdc0a65a502bb12f9c740310e99bb14e8ffc3605</code></td></tr>
+      <tr><td>仓库</td><td><a href="https://github.com/harmonyosnews/album-player-ui">github.com/harmonyosnews/album-player-ui</a></td></tr>
+      <tr><td>发布页</td><td><a href="https://github.com/harmonyosnews/album-player-ui/releases/tag/v0.2.7">releases/tag/v0.2.7</a></td></tr>
+      <tr><td>许可证</td><td>Apache License 2.0；版权人 harmonyosnews</td></tr>
+    </tbody>
+  </table>
+
+  <h3>13.1 更新与回滚的最小流程</h3>
+  <ol class="steps">
+    <li>记录当前 APUI 版本和备份目录。</li>
+    <li>用新版本发布包执行 <code>./install.sh /opt/aplayer</code>。</li>
+    <li>浏览器强制刷新，核对侧栏版本；检查首页、队列、设置三项。</li>
+    <li>异常时用 <code>./uninstall.sh /opt/aplayer-ui-backup-&lt;时间戳&gt; /opt/aplayer</code> 回滚。</li>
+  </ol>
+
+  <h3>13.2 求助时请附上</h3>
+  <ul>
+    <li>APUI 版本（侧栏）与 aplayer 版本；</li>
+    <li>浏览器、操作系统、手机/桌面、横竖屏；</li>
+    <li>复现步骤与期望结果、实际结果；</li>
+    <li>截图或短视频；浏览器开发者工具 Console 的错误；</li>
+    <li><code>?State</code> 输出、aplayer 服务状态、最近日志的脱敏片段；</li>
+    <li>是否改过根目录、DSD/DoP、声卡或导入过配置。</li>
+  </ul>
+  <div class="callout">
+    <p>请不要在公开 Issue 中粘贴口令、私钥、带内网地址/主机名的完整日志，或未脱敏的配置导出。APUI 是独立前端项目，不是 Album Player 官方支持渠道；aplayer 二进制/许可问题请联系其相应权利人。</p>
+  </div>
+</section>
+
+<section>
+  <h2 class="appendix" id="appA">附录 A：用户协议、免责声明与第三方边界</h2>
+  <p>本手册是使用说明，不构成法律意见，也不替代仓库根目录的 <code>LICENSE</code>。完整文本以发布包/仓库中的文件为准：</p>
+  <table>
+    <thead><tr><th style="width:30%">文件</th><th>内容</th></tr></thead>
+    <tbody>
+      <tr><td><code>LICENSE</code></td><td>Apache License 2.0 全文；APUI 源代码与构建产物的许可。</td></tr>
+      <tr><td><code>NOTICE</code></td><td>版权归属、第三方边界与归属说明。</td></tr>
+      <tr><td><code>USER-AGREEMENT.md</code></td><td>用户协议：可信网络、配置备份、内容合规、责任限制。</td></tr>
+      <tr><td><code>DISCLAIMER.md</code></td><td>免责声明：音频设备/听力/配置/第三方内容风险。</td></tr>
+      <tr><td><code>THIRD-PARTY-NOTICES.md</code></td><td>第三方组件、构建工具与发布边界。</td></tr>
+    </tbody>
+  </table>
+
+  <h3>A.1 重点提示</h3>
+  <ul>
+    <li><strong>无鉴权：</strong>7778 只适合可信局域网；远程访问请自行加 VPN/反向代理/防火墙。</li>
+    <li><strong>整包配置：</strong>保存/导入会覆盖可写字段；改设置前备份 <code>config.dat</code>，不要提交空白或来源不明的配置。</li>
+    <li><strong>音频风险：</strong>APUI 只是控制界面；音量、DSD/DoP、声卡、功放和耳机可能因配置不当产生大音量/爆音/硬件风险。首次试听先降低音量。</li>
+    <li><strong>第三方内容：</strong>Album Player 是独立第三方产品，不包含在 APUI 发布包；TinyLMS 仅作视觉/交互参考。相关商标与权利归各自权利人。</li>
+    <li><strong>按现状提供：</strong>APUI 不保证与特定浏览器、DAC、声卡、驱动或 aplayer 版本的兼容性；升级前请回归。</li>
+  </ul>
+
+  <h3>A.2 分发边界</h3>
+  <p>APUI 发布包不包含 aplayer 二进制、TinyLMS 代码/资源或第三方封面/电台图片。再分发 APUI 时请保留 <code>LICENSE</code>、<code>NOTICE</code> 与相关法律文件，并遵守 Apache 2.0 的修改标注与通知义务。正式商用、再分发或高风险场景请自行取得法律意见。</p>
+</section>
+
+<section>
+  <h2 class="appendix" id="appB">附录 B：Apache License 2.0 全文</h2>
+  <p class="tiny">以下为仓库根目录 <code>LICENSE</code> 原文，随本手册一并提供。若译文或摘要与许可证冲突，以许可证原文为准。</p>
+  <pre class="license">{{LICENSE}}</pre>
+</section>
+
+<section>
+  <h2 class="appendix" id="appC">附录 C：NOTICE 与第三方说明</h2>
+  <p class="tiny">以下为仓库根目录 <code>NOTICE</code> 原文。更完整的构建工具、字体/图标与第三方组件说明见 <code>THIRD-PARTY-NOTICES.md</code>。</p>
+  <pre class="license">{{NOTICE}}</pre>
+</section>
+
+</body>
+</html>

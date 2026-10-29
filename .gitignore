@@ -14,3 +14,7 @@ release/apui-web-*/
 *.token
 .DS_Store
 __pycache__/
+
+# Generated manual build artifacts
+docs/manual/build/
+docs/manual/manual.build.html

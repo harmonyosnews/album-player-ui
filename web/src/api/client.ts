@@ -116,6 +116,7 @@ export const api = {
   getPlaylist: (index: number) => getJson<ResultResponse>(`GetPlaylist&playlist=${index}`),
   savePlaylist: (name: string) => getJson<PlaylistsResponse>(`SavePlaylist&name=${encodeURIComponent(name)}`),
   deletePlaylist: (name: string) => getJson<PlaylistsResponse>(`DeletePlaylist&name=${encodeURIComponent(name)}`),
+  deleteAlbum: (album: number) => getJson<AlbumsResponse>(`DeleteAlbum&album=${album}`),
   radioMode: () => getJson<AlbumsResponse>('RadioMode', 12000),
   getRadio: () => getJson<RadioResponse>('GetRadio'),
   getPictures: () => getJson<PicturesResponse>('GetPictures'),

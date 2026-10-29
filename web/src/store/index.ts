@@ -572,6 +572,37 @@ class Store {
     this.set({ queueOpen: false });
   }
 
+  async clearQueue(): Promise<void> {
+    if (!confirm('清除队列会从 aplayer 当前播放列表移除全部条目（不会删除音乐文件），并停止当前播放。继续？')) return;
+    this.setBusy(true);
+    try {
+      let albums = this.state.albums;
+      const total = albums ? Math.max(albums.AlbumList?.length || 0, albums.Albums?.length || 0) : 0;
+      for (let i = 0; i < total; i++) {
+        albums = await api.deleteAlbum(0);
+        const left = Math.max(albums.AlbumList?.length || 0, albums.Albums?.length || 0);
+        if (!left) break;
+      }
+      await api.stop();
+      this.set({
+        albums: albums || null,
+        songs: new Map(),
+        songsRev: this.state.songsRev + 1,
+        libraryRev: this.state.libraryRev + 1,
+        activePlaylistIndex: null,
+        libraryRootIndex: null,
+        deferredLibraryReload: false,
+        queueOpen: false,
+      });
+      await this.refreshState();
+      this.toast('播放队列已清除，音乐文件未删除；刷新可重新载入曲库', 'success');
+    } catch (e) {
+      this.toast(this.describeError(e), 'error');
+    } finally {
+      this.setBusy(false);
+    }
+  }
+
   setRadioCategory(index: number | null): void {
     this.set({ radioCategory: index });
     if (index != null) void this.loadRadioSongs(index);

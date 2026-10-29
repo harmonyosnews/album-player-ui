@@ -43,6 +43,7 @@ export interface LayoutRefs {
     seek: HTMLInputElement;
     current: HTMLElement;
     total: HTMLElement;
+    queue: HTMLButtonElement;
     fav: HTMLButtonElement;
   };
   queue: {
@@ -50,6 +51,7 @@ export interface LayoutRefs {
     body: HTMLElement;
     meta: HTMLElement;
     save: HTMLButtonElement;
+    clear: HTMLButtonElement;
   };
 }
 
@@ -307,6 +309,7 @@ export function renderLayout(app: HTMLElement): LayoutRefs {
   const nowStop = el('button', { class: 'control-btn', type: 'button', title: '停止', 'aria-label': '停止', onclick: () => void store.stop() }, [svgIcon('stop', 18)]);
   const nowPrev = el('button', { class: 'control-btn', type: 'button', title: '上一首', 'aria-label': '上一首', onclick: () => void store.prev() }, [svgIcon('prev', 20)]);
   const nowNext = el('button', { class: 'control-btn', type: 'button', title: '下一首', 'aria-label': '下一首', onclick: () => void store.next() }, [svgIcon('next', 20)]);
+  const nowQueue = el('button', { class: 'control-btn queue-btn', type: 'button', title: '当前播放队列', 'aria-label': '当前播放队列', onclick: () => void store.openQueue() }, [svgIcon('list', 20)]);
   const nowFav = el('button', { class: 'btn-secondary now-fav', type: 'button', title: '收藏当前电台', onclick: () => void store.favor() }, [svgIcon('heart', 16), el('span', { text: '收藏' })]);
   const nowClose = el('button', { class: 'now-close', type: 'button', title: '关闭', 'aria-label': '关闭正在播放', onclick: () => store.toggleNowPlaying(false) }, [svgIcon('chevronDown', 26)]);
   const nowRoot = el('div', { class: 'now-playing hidden', id: 'now-playing' }, [
@@ -318,7 +321,7 @@ export function renderLayout(app: HTMLElement): LayoutRefs {
         el('div', { class: 'now-heading' }, [nowTitle, nowArtist, nowAlbum, nowFormat]),
         nowRadio,
         el('div', { class: 'now-progress' }, [nowCurrent, nowSeek, nowTotal]),
-        el('div', { class: 'now-controls' }, [nowPrev, nowStop, nowPlay, nowNext, nowFav]),
+        el('div', { class: 'now-controls' }, [nowPrev, nowStop, nowPlay, nowNext, nowQueue, nowFav]),
       ]),
     ]),
   ]);
@@ -332,6 +335,11 @@ export function renderLayout(app: HTMLElement): LayoutRefs {
     type: 'button',
     onclick: () => void saveQueueAsPlaylist(),
   }, [svgIcon('check', 16), el('span', { text: '保存为播放列表' })]);
+  const queueClear = el('button', {
+    class: 'btn-danger',
+    type: 'button',
+    onclick: () => void store.clearQueue(),
+  }, [el('span', { text: '清除队列' })]);
   const queueCancel = el('button', {
     class: 'btn-secondary',
     type: 'button',
@@ -363,6 +371,7 @@ export function renderLayout(app: HTMLElement): LayoutRefs {
       queueBody,
       el('div', { class: 'queue-footer' }, [
         queueSave,
+        queueClear,
         queueCancel,
       ]),
     ]),
@@ -385,10 +394,11 @@ export function renderLayout(app: HTMLElement): LayoutRefs {
     now: {
       root: nowRoot, backdrop: nowBackdrop, cover: nowCover, coverFallback: nowCoverFallback,
       title: nowTitle, artist: nowArtist, album: nowAlbum, format: nowFormat, radio: nowRadio,
-      play: nowPlay, stop: nowStop, seek: nowSeek, current: nowCurrent, total: nowTotal, fav: nowFav,
+      play: nowPlay, stop: nowStop, seek: nowSeek, current: nowCurrent, total: nowTotal,
+      queue: nowQueue, fav: nowFav,
     },
     queue: {
-      root: queueRoot, body: queueBody, meta: queueMeta, save: queueSave,
+      root: queueRoot, body: queueBody, meta: queueMeta, save: queueSave, clear: queueClear,
     },
   };
 }
@@ -554,6 +564,7 @@ function updateQueue(refs: LayoutRefs, s: AppState): void {
   if (s.queueLoading) metaParts.push('正在读取…');
   refs.queue.meta.textContent = metaParts.join(' · ');
   refs.queue.save.disabled = !albums || s.busy || displayed === 0;
+  refs.queue.clear.disabled = !albums || s.busy || displayed === 0;
 
   const sig = [
     s.radioMode ? 1 : 0,

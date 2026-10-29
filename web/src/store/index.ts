@@ -55,6 +55,7 @@ export interface AppState {
   libraryRootIndex: number | null;
   activePlaylistIndex: number | null;
   libraryLoading: boolean;
+  deferredLibraryReload: boolean;
   configRev: number;
 }
 
@@ -94,6 +95,7 @@ class Store {
     libraryRootIndex: null,
     activePlaylistIndex: null,
     libraryLoading: false,
+    deferredLibraryReload: false,
     configRev: 0,
   };
 
@@ -135,6 +137,7 @@ class Store {
       const config = await api.getConfig();
       this.set({ config, configRev: this.state.configRev + 1 });
       const player = await api.getState();
+      this.set({ player, radioMode: player.RadioMode });
       let albums = this.state.albums;
       if (player.RadioMode) {
         const radioAlbums = await api.getAlbums();
@@ -201,6 +204,10 @@ class Store {
   async ensureLibrary(force = false): Promise<boolean> {
     const root = String(this.state.config?.root_folder || '').trim();
     if (!root || this.state.libraryLoading) return false;
+    if (this.state.player?.Playing || this.state.player?.Paused) {
+      this.set({ deferredLibraryReload: true });
+      return false;
+    }
     this.set({ libraryLoading: true });
     try {
       const pl = await api.getPlaylists(-1);
@@ -219,6 +226,7 @@ class Store {
         libraryRev: this.state.libraryRev + 1,
         libraryRootIndex: idx,
         activePlaylistIndex: idx,
+        deferredLibraryReload: false,
       });
       return true;
     } finally {
@@ -299,6 +307,15 @@ class Store {
     try {
       await this.refreshState();
       this.failures = 0;
+      const player = this.state.player;
+      if (
+        this.state.deferredLibraryReload &&
+        this.state.route.name === 'home' &&
+        player && !player.Playing && !player.Paused
+      ) {
+        this.set({ deferredLibraryReload: false });
+        void this.ensureLibrary(false);
+      }
     } catch (e) {
       this.failures = Math.min(this.failures + 1, 3);
       const msg = this.describeError(e);

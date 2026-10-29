@@ -2,10 +2,10 @@
 
 GitHub: <https://github.com/harmonyosnews/album-player-ui>
 
-**APUI 0.2.1 已实现并部署。** 这是一个与 aplayer 同源的静态 SPA，替换 `/opt/aplayer/aplayer.html` 后由 aplayer 在 **7778** 端口提供；不新增服务/端口，不改音频引擎。
+**APUI 0.2.2 已实现并部署。** 这是一个与 aplayer 同源的静态 SPA，替换 `/opt/aplayer/aplayer.html` 后由 aplayer 在 **7778** 端口提供；不新增服务/端口，不改音频引擎。
 
-- 构建：Vite 7 + TypeScript；JS 65.4 KB（gzip 20.8 KB）、CSS 27.9 KB（gzip 6.1 KB）。
-- 发布包：[release/apui-web-0.2.1.tar.gz](release/apui-web-0.2.1.tar.gz)（44 KB），sha256 `d3946429c5d43199f3d7ea9073ee37dd8c6b28dbe3652e568aeb66e2c89e2f41`（`sha256sum -c SHA256SUMS`）。
+- 构建：Vite 7 + TypeScript；JS 65.4 KB（gzip 20.8 KB）、CSS 28.9 KB（gzip 6.4 KB）。
+- 发布包：[release/apui-web-0.2.2.tar.gz](release/apui-web-0.2.2.tar.gz)（44 KB），sha256 `ebfcf750b473b28effc1e0c6f1195113b4b4726abf971fec28c54b702738b707`（`sha256sum -c SHA256SUMS`）。
 - 已验证：`.133`（x86 构建/联调）、`.230`（ARM 冒烟）、`.137`（Gentooplayer 实机真实 FLAC 44.1/16/2 播放）。
 - 验收记录：[docs/06-实施与验收记录.md](docs/06-实施与验收记录.md)。
 
@@ -66,14 +66,14 @@ cd web
 npm ci
 npm run build
 npm run check
-npm run package                     # 生成 release/apui-web-0.2.1.tar.gz
+npm run package                     # 生成 release/apui-web-0.2.2.tar.gz
 ```
 
 ### 安装（热替换，无需重启 aplayer）
 
 ```bash
-tar -xzf apui-web-0.2.1.tar.gz
-cd apui-web-0.2.1
+tar -xzf apui-web-0.2.2.tar.gz
+cd apui-web-0.2.2
 ./install.sh /opt/aplayer
 # 浏览器打开 http://<player>:7778/
 ```

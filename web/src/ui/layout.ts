@@ -331,12 +331,12 @@ export function renderLayout(app: HTMLElement): LayoutRefs {
   const queueMeta = el('span', { class: 'queue-meta', text: '' });
   const queueBody = el('div', { class: 'queue-body' });
   const queueSave = el('button', {
-    class: 'btn-primary',
+    class: 'btn-secondary',
     type: 'button',
     onclick: () => void saveQueueAsPlaylist(),
-  }, [svgIcon('check', 16), el('span', { text: '保存为播放列表' })]);
+  }, [el('span', { text: '保存播放列表' })]);
   const queueClear = el('button', {
-    class: 'btn-danger',
+    class: 'btn-secondary',
     type: 'button',
     onclick: () => void store.clearQueue(),
   }, [el('span', { text: '清除队列' })]);
@@ -450,6 +450,10 @@ function albumTitleAt(albums: NonNullable<AppState['albums']>, index: number): s
 
 function buildQueueBody(body: HTMLElement, s: AppState): void {
   body.innerHTML = '';
+  if (!s.radioMode && s.queueCleared) {
+    body.append(el('div', { class: 'queue-empty' }, [svgIcon('list', 28), el('p', { text: '当前播放队列为空' })]));
+    return;
+  }
   const albums = s.radioMode ? s.radioAlbums : s.albums;
   const songMap = s.radioMode ? s.radioSongs : s.songs;
   if (!albums) {
@@ -465,10 +469,11 @@ function buildQueueBody(body: HTMLElement, s: AppState): void {
     indices = [s.radioCategory];
   } else {
     const count = Math.max(albums.AlbumList?.length || 0, albums.Albums?.length || 0);
-    indices = Array.from({ length: count }, (_, i) => i);
+    const current = s.player?.Album;
+    indices = current != null && current >= 0 && current < count ? [current] : [];
   }
   if (!indices.length) {
-    body.append(el('div', { class: 'queue-empty' }, [svgIcon('list', 28), el('p', { text: '当前播放队列为空' })]));
+    body.append(el('div', { class: 'queue-empty' }, [svgIcon('list', 28), el('p', { text: '当前没有正在播放的专辑' })]));
     return;
   }
 
@@ -558,13 +563,19 @@ function updateQueue(refs: LayoutRefs, s: AppState): void {
   const loaded = s.radioMode
     ? (s.radioCategory != null && songMap.has(s.radioCategory) ? 1 : 0)
     : Array.from(songMap.keys()).filter((i) => i < count).length;
-  const metaParts = s.radioMode
-    ? (s.radioCategory != null && albums ? [albumTitleAt(albums, s.radioCategory), '网络电台'] : ['未选择分类'])
-    : [`${count} 张专辑`, `${loaded} 张已载入`];
+  const currentAlbum = s.player?.Album;
+  const cleared = !s.radioMode && s.queueCleared;
+  const metaParts = cleared
+    ? ['队列已清空']
+    : s.radioMode
+      ? (s.radioCategory != null && albums ? [albumTitleAt(albums, s.radioCategory), '网络电台'] : ['未选择分类'])
+      : (currentAlbum != null && currentAlbum >= 0 && currentAlbum < count && albums
+        ? [albumTitleAt(albums, currentAlbum), s.songs.has(currentAlbum) ? `${s.songs.get(currentAlbum)?.Songs?.length || 0} 首` : '正在载入']
+        : ['当前没有正在播放的专辑']);
   if (s.queueLoading) metaParts.push('正在读取…');
   refs.queue.meta.textContent = metaParts.join(' · ');
-  refs.queue.save.disabled = !albums || s.busy || displayed === 0;
-  refs.queue.clear.disabled = !albums || s.busy || displayed === 0;
+  refs.queue.save.disabled = !albums || s.busy || displayed === 0 || cleared;
+  refs.queue.clear.disabled = !albums || s.busy || displayed === 0 || cleared;
 
   const sig = [
     s.radioMode ? 1 : 0,
@@ -572,6 +583,7 @@ function updateQueue(refs: LayoutRefs, s: AppState): void {
     s.radioMode ? s.radioLibraryRev : s.libraryRev,
     s.radioMode ? s.radioSongsRev : s.songsRev,
     s.radioCategory ?? '',
+    cleared ? 1 : 0,
     s.player?.Album ?? -1,
     s.player?.Song ?? -1,
     s.player?.Playing ? 1 : 0,

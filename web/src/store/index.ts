@@ -43,6 +43,7 @@ export interface AppState {
   radioLoading: boolean;
   queueOpen: boolean;
   queueLoading: boolean;
+  queueCleared: boolean;
   radioCategory: number | null;
   radioTitle: string;
   radioPics: string[];
@@ -83,6 +84,7 @@ class Store {
     radioLoading: false,
     queueOpen: false,
     queueLoading: false,
+    queueCleared: false,
     radioCategory: null,
     radioTitle: '',
     radioPics: [],
@@ -332,6 +334,7 @@ class Store {
   }
 
   async play(album: number, song: number): Promise<void> {
+    this.set({ queueCleared: false });
     this.setBusy(true);
     try {
       const p = this.state.player;
@@ -361,6 +364,7 @@ class Store {
       } else {
         const albums = this.state.albums;
         if (!albums?.Albums.length) throw new Error('没有可播放的专辑');
+        this.set({ queueCleared: false });
         const album = p?.Album != null && p.Album >= 0 && p.Album < albums.Albums.length ? p.Album : 0;
         const song = p?.Song != null && p.Song >= 0 ? p.Song : 0;
         const r = await api.play(album, song);
@@ -514,6 +518,7 @@ class Store {
 
   async openQueue(): Promise<void> {
     this.set({ queueOpen: true });
+    if (this.state.queueCleared && !this.state.radioMode) return;
     const radio = this.state.radioMode;
     const albums = radio ? this.state.radioAlbums : this.state.albums;
     if (!albums) return;
@@ -573,35 +578,26 @@ class Store {
   }
 
   async clearQueue(): Promise<void> {
-    if (!confirm('清除队列会从 aplayer 当前播放列表移除全部条目（不会删除音乐文件），并停止当前播放。继续？')) return;
+    if (!confirm('清空当前播放队列并停止播放？不会修改曲库或删除音乐文件。')) return;
     this.setBusy(true);
     try {
-      let albums = this.state.albums;
-      const total = albums ? Math.max(albums.AlbumList?.length || 0, albums.Albums?.length || 0) : 0;
-      for (let i = 0; i < total; i++) {
-        albums = await api.deleteAlbum(0);
-        const left = Math.max(albums.AlbumList?.length || 0, albums.Albums?.length || 0);
-        if (!left) break;
-      }
       await api.stop();
       this.set({
-        albums: albums || null,
+        queueCleared: true,
+        queueOpen: false,
         songs: new Map(),
         songsRev: this.state.songsRev + 1,
-        libraryRev: this.state.libraryRev + 1,
-        activePlaylistIndex: null,
-        libraryRootIndex: null,
         deferredLibraryReload: false,
-        queueOpen: false,
       });
       await this.refreshState();
-      this.toast('播放队列已清除，音乐文件未删除；刷新可重新载入曲库', 'success');
+      this.toast('播放队列已清空，曲库未改动', 'success');
     } catch (e) {
       this.toast(this.describeError(e), 'error');
     } finally {
       this.setBusy(false);
     }
   }
+
 
   setRadioCategory(index: number | null): void {
     this.set({ radioCategory: index });

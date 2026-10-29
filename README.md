@@ -2,10 +2,10 @@
 
 GitHub: <https://github.com/harmonyosnews/album-player-ui>
 
-**APUI 0.2.2 已实现并部署。** 这是一个与 aplayer 同源的静态 SPA，替换 `/opt/aplayer/aplayer.html` 后由 aplayer 在 **7778** 端口提供；不新增服务/端口，不改音频引擎。
+**APUI 0.2.3 已实现并部署。** 这是一个与 aplayer 同源的静态 SPA，替换 `/opt/aplayer/aplayer.html` 后由 aplayer 在 **7778** 端口提供；不新增服务/端口，不改音频引擎。
 
-- 构建：Vite 7 + TypeScript；JS 65.4 KB（gzip 20.8 KB）、CSS 28.9 KB（gzip 6.4 KB）。
-- 发布包：[release/apui-web-0.2.2.tar.gz](release/apui-web-0.2.2.tar.gz)（44 KB），sha256 `ebfcf750b473b28effc1e0c6f1195113b4b4726abf971fec28c54b702738b707`（`sha256sum -c SHA256SUMS`）。
+- 构建：Vite 7 + TypeScript；JS 65.4 KB（gzip 20.8 KB）、CSS 29.6 KB（gzip 6.4 KB）。
+- 发布包：[release/apui-web-0.2.3.tar.gz](release/apui-web-0.2.3.tar.gz)（44 KB），sha256 `2cfa3bd5677b049aa6cedf9c62411757887789e615e7a353ad4da32e10313d88`（`sha256sum -c SHA256SUMS`）。
 - 已验证：`.133`（x86 构建/联调）、`.230`（ARM 冒烟）、`.137`（Gentooplayer 实机真实 FLAC 44.1/16/2 播放）。
 - 验收记录：[docs/06-实施与验收记录.md](docs/06-实施与验收记录.md)。
 
@@ -18,7 +18,7 @@ GitHub: <https://github.com/harmonyosnews/album-player-ui>
 - 左侧导航仅保留“发现/我的音乐”；设置入口在右上角齿轮；独立“关于”页已合并到设置 About。
 - 网络电台：分类、电台、收藏、添加/删除。
 - 播放列表/文件浏览：目录展开/折叠、载入、保存当前列表。
-- 设置：左侧导航已移除“系统”分栏；右上角齿轮进入设置；7 个主分页（常规/解码器/DSP/系统/状态/声卡/关于）+ Decoder/DSP 子分页；参数已中文化；原“关于”页合并进设置。
+- 设置：右上角齿轮进入；左侧无“系统/关于”；7 个主分页 + Decoder/DSP 子分页；参数中文化；底部单一操作行（导出/导入/保存），导入导出为完整配置。
 - 离线提示、轮询退避、XSS 消毒、危险操作确认。
 
 **不做**：队列、历史、歌词、标签、智能推荐、多房间、UPnP 7779（aplayer 无对应接口或超范围）。
@@ -66,14 +66,14 @@ cd web
 npm ci
 npm run build
 npm run check
-npm run package                     # 生成 release/apui-web-0.2.2.tar.gz
+npm run package                     # 生成 release/apui-web-0.2.3.tar.gz
 ```
 
 ### 安装（热替换，无需重启 aplayer）
 
 ```bash
-tar -xzf apui-web-0.2.2.tar.gz
-cd apui-web-0.2.2
+tar -xzf apui-web-0.2.3.tar.gz
+cd apui-web-0.2.3
 ./install.sh /opt/aplayer
 # 浏览器打开 http://<player>:7778/
 ```

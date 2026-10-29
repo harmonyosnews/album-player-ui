@@ -250,11 +250,11 @@ button:disabled { cursor: not-allowed; opacity: .42; }
 .player-progress { display: grid; grid-template-columns: 42px 1fr 42px; align-items: center; gap: 10px; height: 20px; }
 .player-progress .time { color: var(--text-tertiary); font-size: 10.5px; font-variant-numeric: tabular-nums; text-align: center; }
 .seek { width: 100%; height: 20px; margin: 0; appearance: none; background: transparent; cursor: pointer; }
-.seek::-webkit-slider-runnable-track { height: 4px; border-radius: 99px; background: linear-gradient(90deg, var(--accent) var(--seek, 0%), rgba(255,255,255,.12) var(--seek, 0%)); }
-.seek::-moz-range-track { height: 4px; border-radius: 99px; background: rgba(255,255,255,.12); }
-.seek::-moz-range-progress { height: 4px; border-radius: 99px; background: var(--accent); }
-.seek::-webkit-slider-thumb { appearance: none; width: 12px; height: 12px; margin-top: -4px; border-radius: 50%; background: var(--accent); border: 2px solid var(--bg-secondary); opacity: 0; transition: opacity var(--transition); }
-.seek:hover::-webkit-slider-thumb, .seek:focus-visible::-webkit-slider-thumb { opacity: 1; }
+.seek::-webkit-slider-runnable-track { height: 5px; border-radius: 99px; background: linear-gradient(90deg, var(--accent) 0%, var(--accent) var(--seek, 0%), rgba(255,255,255,.28) var(--seek, 0%), rgba(255,255,255,.28) 100%); box-shadow: inset 0 0 0 1px rgba(255,255,255,.06); }
+.seek::-moz-range-track { height: 5px; border-radius: 99px; background: rgba(255,255,255,.28); }
+.seek::-moz-range-progress { height: 5px; border-radius: 99px; background: var(--accent); }
+.seek::-webkit-slider-thumb { appearance: none; width: 12px; height: 12px; margin-top: -3.5px; border-radius: 50%; background: var(--accent); border: 2px solid var(--bg-secondary); opacity: .9; transition: opacity var(--transition), transform var(--transition); }
+.seek:hover::-webkit-slider-thumb, .seek:focus-visible::-webkit-slider-thumb { opacity: 1; transform: scale(1.1); }
 .seek::-moz-range-thumb { width: 12px; height: 12px; border-radius: 50%; background: var(--accent); border: 2px solid var(--bg-secondary); }
 .seek:disabled { opacity: .3; cursor: default; }
 .player-main { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 20px; }
@@ -296,7 +296,7 @@ button:disabled { cursor: not-allowed; opacity: .42; }
 .now-radio { margin: 0; color: rgba(255,255,255,.65); font-size: 13px; min-height: 1px; }
 .now-progress { display: grid; grid-template-columns: 42px 1fr 42px; gap: 10px; align-items: center; }
 .now-progress .time { color: rgba(255,255,255,.5); font-size: 11px; text-align: center; }
-.now-progress .seek::-webkit-slider-runnable-track { background: linear-gradient(90deg, var(--accent) var(--seek, 0%), rgba(255,255,255,.22) var(--seek, 0%)); }
+.now-progress .seek::-webkit-slider-runnable-track { background: linear-gradient(90deg, var(--accent) 0%, var(--accent) var(--seek, 0%), rgba(255,255,255,.34) var(--seek, 0%), rgba(255,255,255,.34) 100%); }
 .now-controls { display: flex; align-items: center; gap: 12px; }
 .now-controls .control-btn { color: rgba(255,255,255,.75); width: 44px; height: 44px; }
 .now-controls .control-btn:hover { background: rgba(255,255,255,.1); color: #fff; }
@@ -503,3 +503,15 @@ button:disabled { cursor: not-allowed; opacity: .42; }
 [data-theme="light"] .input:hover { background: #fff; border-color: rgba(0,0,0,.32); }
 [data-theme="light"] .input:focus { background: #fff; }
 [data-theme="light"] .settings-section { background: #fff; }
+
+.settings-actions {
+  display: flex; align-items: center; justify-content: space-between; gap: 18px;
+  margin-top: 4px; padding: 12px 2px 2px; border-top: 1px solid var(--border-soft);
+}
+.settings-action-note { color: var(--text-tertiary); font-size: 11.5px; line-height: 1.5; max-width: 470px; }
+.settings-actions .button-row { justify-content: flex-end; flex: 0 0 auto; }
+@media (max-width: 900px) {
+  .settings-actions { align-items: flex-start; flex-direction: column; }
+  .settings-actions .button-row { width: 100%; justify-content: flex-end; }
+  .settings-action-note { max-width: none; }
+}

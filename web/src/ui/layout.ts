@@ -175,12 +175,14 @@ export function renderLayout(app: HTMLElement): LayoutRefs {
     value: '0',
     'aria-label': '播放进度',
   }) as HTMLInputElement;
+  seek.style.setProperty('--seek', '0%');
   const current = el('span', { class: 'time', text: '0:00' });
   const total = el('span', { class: 'time', text: '0:00' });
   seek.addEventListener('pointerdown', () => { dragging = true; });
   seek.addEventListener('input', () => {
     const p = store.get().player;
     const len = p?.PlayingLen || 0;
+    seek.style.setProperty('--seek', `${Number(seek.value)}%`);
     if (len > 0) current.textContent = formatDuration((Number(seek.value) / 100) * len);
   });
   seek.addEventListener('change', () => {
@@ -267,11 +269,13 @@ export function renderLayout(app: HTMLElement): LayoutRefs {
   const nowFormat = el('span', { class: 'badge', text: '' });
   const nowRadio = el('p', { class: 'now-radio', text: '' });
   const nowSeek = el('input', { class: 'seek', type: 'range', min: '0', max: '100', step: '0.1', value: '0', 'aria-label': '播放进度' }) as HTMLInputElement;
+  nowSeek.style.setProperty('--seek', '0%');
   const nowCurrent = el('span', { class: 'time', text: '0:00' });
   const nowTotal = el('span', { class: 'time', text: '0:00' });
   nowSeek.addEventListener('pointerdown', () => { nowDragging = true; });
   nowSeek.addEventListener('input', () => {
     const len = store.get().player?.PlayingLen || 0;
+    nowSeek.style.setProperty('--seek', `${Number(nowSeek.value)}%`);
     if (len > 0) nowCurrent.textContent = formatDuration((Number(nowSeek.value) / 100) * len);
   });
   nowSeek.addEventListener('change', () => { nowDragging = false; void store.seek(Number(nowSeek.value)); });
@@ -336,6 +340,12 @@ function setText(node: HTMLElement, text: string): void {
   if (node.textContent !== text) node.textContent = text;
 }
 
+function setSeek(input: HTMLInputElement, percent: number): void {
+  const value = Math.min(100, Math.max(0, percent));
+  input.value = String(value);
+  input.style.setProperty('--seek', `${value}%`);
+}
+
 export function updateLayout(refs: LayoutRefs, s: AppState): void {
   const route = s.route.name;
   for (const link of [...refs.navLinks, ...refs.mobileLinks]) {
@@ -393,9 +403,9 @@ export function updateLayout(refs: LayoutRefs, s: AppState): void {
   refs.player.stop.disabled = !playing && !paused;
   refs.player.seek.disabled = !p || !p.ProgressVisible || p.PlayingLen <= 0;
   if (!dragging && p && p.PlayingLen > 0 && p.ProgressVisible) {
-    refs.player.seek.value = String(Math.min(100, Math.max(0, (p.Position / p.PlayingLen) * 100)));
+    setSeek(refs.player.seek, (p.Position / p.PlayingLen) * 100);
   } else if (!p || p.PlayingLen <= 0) {
-    refs.player.seek.value = '0';
+    setSeek(refs.player.seek, 0);
   }
   setText(refs.player.current, p && p.ProgressVisible ? formatDuration(p.Position) : '0:00');
   setText(refs.player.total, p && p.ProgressVisible ? formatDuration(p.PlayingLen) : '0:00');
@@ -428,9 +438,9 @@ export function updateLayout(refs: LayoutRefs, s: AppState): void {
     refs.now.stop.disabled = !playing && !paused;
     refs.now.seek.disabled = !p || !p.ProgressVisible || p.PlayingLen <= 0;
     if (!nowDragging && p && p.PlayingLen > 0 && p.ProgressVisible) {
-      refs.now.seek.value = String(Math.min(100, Math.max(0, (p.Position / p.PlayingLen) * 100)));
+      setSeek(refs.now.seek, (p.Position / p.PlayingLen) * 100);
     } else if (!p || p.PlayingLen <= 0) {
-      refs.now.seek.value = '0';
+      setSeek(refs.now.seek, 0);
     }
     setText(refs.now.current, p && p.ProgressVisible ? formatDuration(p.Position) : '0:00');
     setText(refs.now.total, p && p.ProgressVisible ? formatDuration(p.PlayingLen) : '0:00');

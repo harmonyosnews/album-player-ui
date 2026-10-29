@@ -350,11 +350,7 @@ export function renderSettings(view: HTMLElement, s: AppState): void {
   const header = el('div', { class: 'page-header settings-header' }, [
     el('div', {}, [
       el('h1', { text: '设置' }),
-      el('p', { class: 'subtitle', text: 'Album Player 设置 · 修改会写入 aplayer 配置；保存前做完整合并与校验' }),
-    ]),
-    el('div', { class: 'page-actions' }, [
-      el('button', { class: 'btn-secondary', type: 'button', onclick: () => store.exportConfig() }, [svgIcon('external', 16), el('span', { text: '导出配置' })]),
-      el('button', { class: 'btn-secondary', type: 'button', onclick: () => triggerImport() }, [svgIcon('folder', 16), el('span', { text: '导入配置' })]),
+      el('p', { class: 'subtitle', text: 'Album Player 设置 · 保存/导入/导出均作用于完整配置（全部可写字段），不是当前分页' }),
     ]),
   ]);
   body.append(header);
@@ -364,13 +360,21 @@ export function renderSettings(view: HTMLElement, s: AppState): void {
     if (Object.keys(patch).length) void store.saveSettings(patch);
   };
 
+  const actions = (canSave: boolean): HTMLElement => el('div', { class: 'settings-actions' }, [
+    el('span', { class: 'settings-action-note', text: '完整配置操作：导入/导出/保存覆盖全部分页的可写字段。' }),
+    el('div', { class: 'button-row' }, [
+      el('button', { class: 'btn-secondary', type: 'button', title: '导出完整配置（全部分页）', onclick: () => store.exportConfig() }, [svgIcon('external', 16), el('span', { text: '导出配置' })]),
+      el('button', { class: 'btn-secondary', type: 'button', title: '导入完整配置（全部分页）', onclick: () => triggerImport() }, [svgIcon('folder', 16), el('span', { text: '导入配置' })]),
+      canSave ? el('button', { class: 'btn-primary', type: 'button', onclick: save }, [svgIcon('check', 18), el('span', { text: '保存设置' })]) : '',
+    ]),
+  ]);
+
   if (activeTab === 'status') {
-    body.append(renderStatus(config, s));
+    body.append(renderStatus(config, s), actions(false));
   } else if (activeTab === 'about') {
-    body.append(renderAbout(config));
+    body.append(renderAbout(config), actions(false));
   } else if (activeTab === 'card') {
-    body.append(renderCard(config, controls, save));
-    header.querySelector('.page-actions')?.append(el('button', { class: 'btn-primary', type: 'button', onclick: save }, [svgIcon('check', 16), el('span', { text: '保存' })]));
+    body.append(renderCard(config, controls), actions(true));
   } else {
     const subs = SUB_TABS[activeTab];
     if (subs) {
@@ -399,9 +403,7 @@ export function renderSettings(view: HTMLElement, s: AppState): void {
       body.append(renderConvolverInfo(config));
     }
 
-    const saveBtn = el('button', { class: 'btn-primary save-btn', type: 'button', onclick: save }, [svgIcon('check', 18), el('span', { text: '保存设置' })]);
-    header.querySelector('.page-actions')?.append(el('button', { class: 'btn-primary', type: 'button', onclick: save }, [svgIcon('check', 16), el('span', { text: '保存' })]));
-    body.append(el('div', { class: 'save-bar' }, [saveBtn]));
+    body.append(actions(true));
   }
 
   const importInput = el('input', { type: 'file', accept: '.json,application/json', class: 'hidden' }) as HTMLInputElement;
@@ -484,14 +486,13 @@ function renderStatus(config: Config, s: AppState): HTMLElement {
   ]);
 }
 
-function renderCard(config: Config, controls: Map<string, FieldControl>, save: () => void): HTMLElement {
+function renderCard(config: Config, controls: Map<string, FieldControl>): HTMLElement {
   const asound = Array.isArray(config.asound) ? config.asound.map(String) : [];
   const cards = Array.isArray(config.cards) ? config.cards.map(String) : [];
   const options = cardsOptions(config);
   const cardSelect = select(options[0]?.value || '0', options.length ? options : [{ value: '0', label: '未检测到声卡' }]);
   cardSelect.disabled = !options.length;
   const form = renderFieldGroups('card', null, config, controls);
-  const saveBtn = el('button', { class: 'btn-primary save-btn', type: 'button', onclick: save }, [svgIcon('check', 18), el('span', { text: '保存设置' })]);
   return el('div', { class: 'settings-card-body' }, [
     el('section', { class: 'settings-section' }, [
       el('h3', { text: '声卡' }),
@@ -508,7 +509,6 @@ function renderCard(config: Config, controls: Map<string, FieldControl>, save: (
       ]),
     ]),
     form,
-    el('div', { class: 'save-bar' }, [saveBtn]),
   ]);
 }
 

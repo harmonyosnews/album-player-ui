@@ -1,4 +1,4 @@
-import { api, ApiError, postConfig } from '../api/client';
+import { api, ApiError, bumpImageCache, postConfig } from '../api/client';
 import { buildPayload, normaliseRoot, validatePayload } from '../api/config-fields';
 import { clampInt } from '../api/sanitize';
 import type {
@@ -463,6 +463,7 @@ class Store {
       try {
         const albums = await api.radioMode();
         if (!albums.RadioMode) throw new Error('无法进入电台模式');
+        bumpImageCache();
         this.set({
           radioAlbums: albums,
           radioMode: true,
@@ -493,6 +494,7 @@ class Store {
       try {
         const albums = await api.radioMode();
         const hasLocal = albums.Albums.length > 0 || albums.AlbumList.length > 0;
+        bumpImageCache();
         this.set({
           radioMode: false,
           radioAlbums: null,

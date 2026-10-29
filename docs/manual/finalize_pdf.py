@@ -44,7 +44,7 @@ def main() -> None:
             align=pymupdf.TEXT_ALIGN_CENTER,
         )
     doc.set_metadata({
-        "title": "APUI 使用手册 0.2.7",
+        "title": "APUI 使用手册 1.0.0",
         "author": "harmonyosnews",
         "subject": "Album Player UI (APUI) 使用手册",
         "keywords": "APUI, Album Player, aplayer, Web UI, 使用手册",

@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
-<title>APUI 使用手册 0.2.7</title>
+<title>APUI 使用手册 1.0.0</title>
 <style>
   @page { size: A4; margin: 18mm 16mm 20mm; }
   :root {
@@ -325,7 +325,7 @@
     <div class="cover-sub2">装好、播起来、看懂队列、快速排障</div>
   </div>
   <div class="cover-meta">
-    版本 0.2.7<br>
+    版本 1.0.0<br>
     兼容 Album Player for Linux 2.19<br>
     2026-10-29
   </div>
@@ -401,14 +401,14 @@
 
 <section>
   <h2 class="chapter" id="ch2">2. 安装与首次使用</h2>
-  <p class="lead">APUI 0.2.7 的发布包是静态前端，不依赖 Node、Python 或额外的 Web 服务器。安装脚本会把入口文件热替换进现有 aplayer 目录，不需要重启 aplayer。</p>
+  <p class="lead">APUI 1.0.0 的发布包是静态前端，不依赖 Node、Python 或额外的 Web 服务器。安装脚本会把入口文件热替换进现有 aplayer 目录，不需要重启 aplayer。</p>
 
   <h3>2.1 安装前确认</h3>
   <ul>
     <li>目标机已经安装并运行 <strong>Album Player for Linux 2.19</strong>，7778 端口可访问。</li>
     <li>你有目标机的 root 权限；APUI 安装会写 <code>/opt/aplayer</code>。</li>
     <li>浏览器为现代 Chrome、Edge、Firefox 或 Safari；本项目主要在 Chromium 上验收。</li>
-    <li>准备好同版本的发布包 <code>apui-web-0.2.7.tar.gz</code> 及其 <code>.sha256</code>。</li>
+    <li>准备好同版本的发布包 <code>apui-web-1.0.0.tar.gz</code> 及其 <code>.sha256</code>。</li>
   </ul>
   <pre># 在目标机先确认 aplayer Web 服务本身正常
 curl -fsS http://127.0.0.1:7778/ | head
@@ -422,8 +422,8 @@ systemctl status aplayer
   <p>建议整个解包、进入目录、执行安装的过程都在同一个 root 会话里完成，避免文件属主和权限不一致。</p>
   <pre>sudo -i
 cd /tmp
-tar -xzf apui-web-0.2.7.tar.gz
-cd apui-web-0.2.7
+tar -xzf apui-web-1.0.0.tar.gz
+cd apui-web-1.0.0
 ./install.sh /opt/aplayer</pre>
   <p>安装脚本会：</p>
   <ul>
@@ -434,7 +434,7 @@ cd apui-web-0.2.7
   </ul>
 
   <div class="callout">
-    <p><strong>安装后先核对入口。</strong>浏览器打开 <code>http://&lt;播放器IP&gt;:7778/</code>，侧栏底部应显示 <code>UI 0.2.7 · aplayer 2.19</code>。如果仍显示旧版本，先强制刷新（Ctrl+F5 / Cmd+Shift+R），再检查 <code>/opt/aplayer/aplayer.html</code> 是否指向新的 <code>ui/app-*.js</code>。</p>
+    <p><strong>安装后先核对入口。</strong>浏览器打开 <code>http://&lt;播放器IP&gt;:7778/</code>，侧栏底部应显示 <code>UI 1.0.0 · aplayer 2.19</code>。如果仍显示旧版本，先强制刷新（Ctrl+F5 / Cmd+Shift+R），再检查 <code>/opt/aplayer/aplayer.html</code> 是否指向新的 <code>ui/app-*.js</code>。</p>
   </div>
 
   <h3>2.3 配置音乐根目录</h3>
@@ -444,7 +444,7 @@ cd apui-web-0.2.7
     <li><strong>保存设置。</strong>点击页面底部“保存设置”，等待“设置已保存”提示。</li>
     <li><strong>刷新并回到首页。</strong>点击顶部刷新按钮，或点击左上角 Album Player 标志回首页。首页会自动载入根目录曲库。</li>
   </ol>
-  <p>APUI 0.2.7 不再把“上一次的当前播放列表”当成首页：初始化、回到首页时都会按根目录重新载入。根目录为空时，APUI 不会擅自载入系统 <code>/</code>，以免把系统目录当作媒体库。</p>
+  <p>APUI 1.0.0 不再把“上一次的当前播放列表”当成首页：初始化、回到首页时都会按根目录重新载入。根目录为空时，APUI 不会擅自载入系统 <code>/</code>，以免把系统目录当作媒体库。</p>
 
   <h3>2.4 升级、回滚与验证</h3>
   <p>升级时直接安装新版本发布包；安装脚本会重新生成备份。回滚使用安装包内的卸载脚本，把备份目录作为参数传入：</p>
@@ -547,37 +547,36 @@ cd apui-web-0.2.7
 
 <section>
   <h2 class="chapter" id="ch6">6. 当前播放队列</h2>
-  <p class="lead">队列不是另一套播放引擎，而是把 aplayer 的“当前播放列表”按专辑分组展示出来。它解决两个问题：我现在在放什么，以及这一串曲目怎么快速保存。</p>
+  <p class="lead">队列视图只展示当前正在播放的专辑，不再把整个曲库的其他专辑列出来。它回答“这张专辑接下来放什么”，而不是复制一份完整媒体库。</p>
 
   <h3>6.1 打开与阅读</h3>
   <ol class="steps">
-    <li><strong>点击队列按钮。</strong>位置在播放条播放/下一首控制的右侧，图标像一份列表。弹窗从播放条上方出现。</li>
-    <li><strong>看当前高亮。</strong>当前专辑有浅色背景，当前曲目左侧显示播放小三角；如果刚载入根库，当前指针可能指向新列表中的对应位置。</li>
-    <li><strong>展开其他专辑。</strong>专辑行右侧显示“点击载入曲目”时，点击专辑行读取该专辑的曲目；读取完成后直接展开。</li>
+    <li><strong>点击队列按钮。</strong>位置在播放条播放/下一首控制的右侧，图标像一份列表；全屏正在播放页也有同样的队列按钮。弹窗从下方出现。</li>
+    <li><strong>看当前高亮。</strong>当前专辑有浅色背景，当前曲目左侧显示播放小三角；队列只包含这一张正在播放的专辑。</li>
     <li><strong>点曲目播放。</strong>点击队列中的曲目会立即播放并关闭弹窗；播放条与队列高亮同步。</li>
-    <li><strong>关闭。</strong>使用右上角 ×、“取消”、点击遮罩或按 Esc；焦点会回到队列按钮。</li>
+    <li><strong>底部操作。</strong>“保存播放列表”“清除队列”“取消”三个按钮样式一致；关闭也可用右上角 ×、点击遮罩或 Esc。</li>
   </ol>
 
   <figure>
     <img src="assets/04-queue.jpg" alt="当前播放队列弹窗"/>
-    <figcaption>图 3：当前播放队列。按专辑分组；当前专辑和当前曲目有强调色；底部是“保存为播放列表”和“取消”。</figcaption>
+    <figcaption>图 3：当前播放队列。只显示当前专辑；底部是“保存播放列表 / 清除队列 / 取消”。</figcaption>
   </figure>
 
-  <h3>6.2 大曲库为什么只展开一张</h3>
-  <p>队列超过 12 张专辑时，APUI 只预载当前专辑的曲目，其他专辑点击时再读取。这是为了避免一次打开队列就向 aplayer 发几十个 <code>GetSongs</code> 请求、把界面和轮询拖慢。专辑行会明确显示“点击载入曲目”；这不是队列缺歌。</p>
+  <h3>6.2 队列范围</h3>
+  <p>队列内容随当前播放专辑变化。播放另一张专辑后，队列自动切换为新专辑；不会继续列出上一张专辑或整个曲库。这样可以避免把“播放历史”误当成“当前队列”。</p>
+  <p>底层仍然是 aplayer 的当前播放列表，但 APUI 只呈现当前专辑的曲目视图；切歌、暂停、继续不会清空当前专辑。</p>
 
-  <h3>6.3 保存为播放列表</h3>
-  <p>点击“保存为播放列表”，输入名称并确认。APUI 调用 aplayer 的 <code>SavePlaylist</code>，把<strong>当前播放列表</strong>保存成 <code>.ap2</code>；随后可在“播放列表”页看到并载入。保存成功会关闭队列弹窗并显示 Toast。</p>
+  <h3>6.3 保存与清除</h3>
   <ul>
-    <li>名称不能为空；包含路径分隔符、控制字符等不安全字符时，APUI 会替换为短横线。</li>
-    <li>如果当前队列是整个根库，保存的就是整个根库列表，文件可能较大。</li>
-    <li>保存失败时不要反复点；先检查 aplayer 服务、目录权限和磁盘空间，再重试。</li>
+    <li><strong>保存播放列表：</strong>输入名称后调用 aplayer 的 <code>SavePlaylist</code>，保存当前 aplayer 播放列表为 <code>.ap2</code>；随后可在“播放列表”页看到。</li>
+    <li><strong>清除队列：</strong>停止当前播放并清空队列视图；不会删除音乐文件，也不会修改根目录曲库。再次播放专辑时会恢复为该专辑的队列。</li>
+    <li>队列为空时，“保存播放列表”和“清除队列”会自动禁用；名称不能为空，不安全字符会被替换。</li>
   </ul>
 
   <div class="callout">
-    <p><strong>首页与队列的关系：</strong>APUI 在回到首页时会载入根目录曲库，这会改变 aplayer 的“当前播放列表”视图，因此队列也随之变成根库。要保存某个已载入的播放列表，请先在“播放列表”页载入它，再打开队列保存；不要在回到首页后误存整库。</p>
+    <p><strong>首页与队列的关系：</strong>回到首页会重新载入根目录曲库；播放中的专辑仍可继续。停止播放后再回到首页，APUI 会恢复根目录曲库视图。</p>
   </div>
-  <p class="muted">限制：aplayer 没有队列重排/删除接口，APUI 不提供拖动排序，也不会伪造一个只在浏览器里存在的队列。</p>
+  <p class="muted">限制：aplayer 没有队列重排/删除接口，APUI 不提供拖动排序；清除队列是停止播放并清空当前队列视图，不改动曲库文件。</p>
 </section>
 
 <section>
@@ -623,7 +622,7 @@ cd apui-web-0.2.7
   <h3>8.1 播放列表</h3>
   <ul>
     <li><strong>aplayer.dat</strong> 是 aplayer 最近一次使用的列表，通常保留为系统条目；APUI 不提供直接删除。</li>
-    <li><strong>.ap2</strong> 是通过“保存当前”或队列弹窗“保存为播放列表”生成的可载入列表，可以删除。</li>
+    <li><strong>.ap2</strong> 是通过“保存当前”或队列弹窗“保存播放列表”生成的可载入列表，可以删除。</li>
     <li>“载入”会把该列表设为 aplayer 当前播放列表，然后跳到“专辑”页显示其中内容。它不会复制音乐文件。</li>
     <li>“保存当前”保存的是 aplayer 当前播放列表；如果当前列表是根库，就会保存整库。</li>
     <li>播放列表保存/删除后点击“刷新”，确认列表变化；操作失败时先检查 aplayer 目录权限。</li>
@@ -654,7 +653,7 @@ cd apui-web-0.2.7
   <table>
     <thead><tr><th style="width:22%">分页</th><th>内容</th><th style="width:30%">子分页</th></tr></thead>
     <tbody>
-      <tr><td>常规</td><td>封面目录、根目录、曲间静音、16/24 bit、播放模式、预载缓冲、Gapless、音量、自动下一专辑、cue/tags、ALSA 周期/缓冲</td><td>—</td></tr>
+      <tr><td>常规</td><td>封面目录、根目录、曲间静音、16/24 bit、播放模式、预载缓冲、Gapless、音量、自动下一专辑、cue/tags、ALSA 周期/缓冲</td><td>媒体库与输出 / 播放 / 音量 / 媒体库选项 / ALSA</td></tr>
       <tr><td>解码器</td><td>DSD 输出/上限、PCM 采样率与音量、DVD-A、电台目录与网络参数</td><td>DSD / DVD-A / 电台</td></tr>
       <tr><td>DSP</td><td>多声道转换、声道交换、相位、PCM→DSD、重采样、卷积器</td><td>转换器 / 重采样器 / 卷积器</td></tr>
       <tr><td>系统</td><td>进程优先级、Nice、内存锁定、核心选择</td><td>—</td></tr>
@@ -666,8 +665,10 @@ cd apui-web-0.2.7
 
   <figure>
     <img src="assets/06-settings-crop.jpg" alt="APUI 设置页"/>
-    <figcaption>图 6：设置页（常规）上半部分。左侧是 7 个主分页；保存、导入、导出在页面底部，作用范围是整个配置。</figcaption>
+    <figcaption>图 6：设置页（常规）上半部分。常规包含 5 个子标签；设置内容在圆角卡片中，保存/导入/导出作用于完整配置。</figcaption>
   </figure>
+
+  <p class="muted">声卡页按“关于”页的分布拆为两张卡片；选择声卡下拉框与“应用”按钮在同一行。</p>
 
   <h3>9.2 最常改的字段</h3>
   <table>
@@ -730,21 +731,33 @@ cd apui-web-0.2.7
     </figure>
     <figure>
       <img src="assets/12-mobile-queue.jpg" alt="手机队列"/>
-      <figcaption>队列：底部弹层，保存/取消固定在底部</figcaption>
+      <figcaption>队列：当前专辑曲目，底部三按钮</figcaption>
+    </figure>
+  </div>
+
+  <div class="mobile-pair">
+    <figure>
+      <img src="assets/13-mobile-hero.jpg" alt="手机英雄页"/>
+      <figcaption>英雄页：进度全宽、控制居中、退出左上角</figcaption>
+    </figure>
+    <figure>
+      <img src="assets/14-mobile-browse.jpg" alt="手机文件浏览"/>
+      <figcaption>文件：底部入口进入目录浏览</figcaption>
     </figure>
   </div>
 
   <h3>10.1 布局与操作</h3>
   <ul>
-    <li>底部导航固定为<strong>首页、专辑、电台、设置</strong>；文件浏览、艺术家、播放列表仍可通过其他入口/桌面访问。</li>
-    <li>播放条在底部导航上方，队列按钮在播放控制最右侧；队列弹层不会盖住整个屏幕，仍能看到播放条。</li>
-    <li>点击播放条封面/曲名打开全屏正在播放；全屏页按手机宽度单列排布。</li>
+    <li>底部导航固定为<strong>首页、专辑、文件、电台</strong>；设置入口在右上角齿轮，艺术家/播放列表仍可通过桌面或其他入口访问。</li>
+    <li>首页、专辑页的专辑网格在手机上是<strong>3 列</strong>；播放条在底部导航上方，队列按钮与上一曲/下一曲同风格。</li>
+    <li>播放条控制组居中，播放/暂停图标位于圆形背景正中；进度条使用内容区全宽，保留左右时间。</li>
+    <li>点击播放条封面/曲名打开全屏正在播放；英雄页进度条接近全宽，控制栏居中，退出按钮在左上角。</li>
     <li>设置页在窄屏下隐藏左侧分页导航，主分页以横向标签展示；开关行右对齐，文本输入占满一行。</li>
     <li>横屏/竖屏都可用；如果系统有安全区，底部导航会预留空间。</li>
   </ul>
 
   <h3>10.2 兼容性</h3>
-  <p>本项目主要在 Chromium（桌面/Android）和移动视口模拟下验收；Firefox、Safari 和 iOS/Android 真机的逐项验收仍在后续清单中。遇到布局问题，先强制刷新、更新到 0.2.7，并提供浏览器与系统版本、截图和页面地址。</p>
+  <p>本项目主要在 Chromium（桌面/Android）和移动视口模拟下验收；Firefox、Safari 和 iOS/Android 真机的逐项验收仍在后续清单中。遇到布局问题，先强制刷新、更新到 1.0.0，并提供浏览器与系统版本、截图和页面地址。</p>
 </section>
 
 <section>
@@ -757,7 +770,7 @@ cd apui-web-0.2.7
       <tr><td>页面打不开</td><td>7778 是否监听；aplayer 是否运行；浏览器地址是否为根路径</td><td>先让 aplayer 正常；不要访问 <code>/?unknown</code> 这类查询，aplayer 会返回 Command Not Found。检查防火墙/端口。</td></tr>
       <tr><td>页面是旧版，或侧栏版本不对</td><td>侧栏版本号；<code>aplayer.html</code> 引用的 <code>ui/app-*.js</code></td><td>强制刷新；确认安装脚本已替换入口；重新安装同版本发布包。</td></tr>
       <tr><td>首页没有专辑</td><td>设置 → 常规 → 根目录；文件浏览</td><td>根目录为空/写法不对（不要首尾斜杠）；目录对 aplayer 不可见；保存后刷新。</td></tr>
-      <tr><td>首页只有一张专辑/上次的列表</td><td>版本是否为 0.2.7；根目录是否配置</td><td>0.2.7 会回到根目录；旧版请升级。根目录为空时不会猜库，需先配置。</td></tr>
+      <tr><td>首页只有一张专辑/上次的列表</td><td>版本是否为 1.0.0；根目录是否配置</td><td>1.0.0 会回到根目录；旧版请升级。根目录为空时不会猜库，需先配置。</td></tr>
       <tr><td>点播放没声音</td><td>播放条时间、格式；设置 → 状态；aplayer 日志</td><td>APUI 只发命令；检查 aplayer 输出设备、音量、格式支持、另一台机器是否占用设备。</td></tr>
       <tr><td>进度条一直是 0</td><td>是否电台/流；<code>ProgressVisible</code>/<code>PlayingLen</code></td><td>流媒体没有总时长时正常；本地文件仍为 0 则查 aplayer 状态或格式。</td></tr>
       <tr><td>音量滑块不见了</td><td>设置 → 音量控制</td><td>aplayer 未启用音量控制时按设计隐藏；不是 UI 缺失。</td></tr>
@@ -765,9 +778,9 @@ cd apui-web-0.2.7
       <tr><td>设置保存失败</td><td>错误提示；根目录/封面；<code>config.dat</code> 备份</td><td>字段校验失败或 aplayer 无法写入；恢复备份后再改，逐项提交。</td></tr>
       <tr><td>导入配置后不对</td><td>导入确认框；JSON 来源；备份</td><td>导入覆盖可写字段；用错文件就回滚 <code>config.dat</code>，不要在生产库上试未知配置。</td></tr>
       <tr><td>电台分类为空/卡住</td><td>网络；aplayer 电台目录；页面重试</td><td>退出再进入；更新/替换目录需确认；检查 aplayer 的电台文件与网络。</td></tr>
-      <tr><td>队列只展开一张专辑</td><td>队列专辑行的“点击载入曲目”</td><td>大曲库的按需加载；点击专辑行读取，不是缺歌。</td></tr>
+      <tr><td>队列里有其他专辑</td><td>当前播放的专辑</td><td>1.0.0 只显示当前专辑；点击播放新专辑后队列会切换。</td></tr>
       <tr><td>保存播放列表失败</td><td>名称为空？aplayer 目录权限/磁盘</td><td>换名称；确认 aplayer 可写播放列表目录；保存的是当前列表，不是单曲。</td></tr>
-      <tr><td>手机布局溢出/按钮被挡</td><td>浏览器缩放、横竖屏、版本</td><td>强制刷新并升级 0.2.7；仍异常请提供设备、浏览器版本和截图。</td></tr>
+      <tr><td>手机布局溢出/按钮被挡</td><td>浏览器缩放、横竖屏、版本</td><td>强制刷新并升级 1.0.0；仍异常请提供设备、浏览器版本和截图。</td></tr>
       <tr><td>升级 aplayer 后界面异常</td><td>aplayer 版本；接口是否变化</td><td>APUI 只适配 2.19 接口；升级前回归，必要时回滚 aplayer 或安装匹配版本。</td></tr>
     </tbody>
   </table>
@@ -822,13 +835,13 @@ systemctl status aplayer
   <table>
     <thead><tr><th style="width:28%">项目</th><th>内容</th></tr></thead>
     <tbody>
-      <tr><td>APUI 版本</td><td>0.2.7（2026-10-29）</td></tr>
+      <tr><td>APUI 版本</td><td>1.0.0（2026-10-29）</td></tr>
       <tr><td>兼容</td><td>Album Player for Linux 2.19；Web 端口 7778</td></tr>
-      <tr><td>发布包</td><td><code>apui-web-0.2.7.tar.gz</code>（约 47 KB）</td></tr>
-      <tr><td>入口资源</td><td><code>ui/app-o4obOtpw-.js</code> / <code>ui/app-Bo8oRZkx.css</code></td></tr>
-      <tr><td>SHA256</td><td><code>0ff3a844b71524015e75d825cdc0a65a502bb12f9c740310e99bb14e8ffc3605</code></td></tr>
+      <tr><td>发布包</td><td><code>apui-web-1.0.0.tar.gz</code>（约 47 KB）</td></tr>
+      <tr><td>入口资源</td><td><code>ui/app-CiqgQiA2-.js</code> / <code>ui/app-BbGewegi.css</code></td></tr>
+      <tr><td>SHA256</td><td><code>8a6c008361cebc039ffffcca284c9265ba6bf231714b8126c1422d57df447929</code></td></tr>
       <tr><td>仓库</td><td><a href="https://github.com/harmonyosnews/album-player-ui">github.com/harmonyosnews/album-player-ui</a></td></tr>
-      <tr><td>发布页</td><td><a href="https://github.com/harmonyosnews/album-player-ui/releases/tag/v0.2.7">releases/tag/v0.2.7</a></td></tr>
+      <tr><td>发布页</td><td><a href="https://github.com/harmonyosnews/album-player-ui/releases/tag/v1.0.0">releases/tag/v1.0.0</a></td></tr>
       <tr><td>许可证</td><td>Apache License 2.0；版权人 harmonyosnews</td></tr>
     </tbody>
   </table>

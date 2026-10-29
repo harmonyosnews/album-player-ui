@@ -276,8 +276,8 @@ export function renderLayout(app: HTMLElement): LayoutRefs {
     el('div', { class: 'mobile-nav-items' }, [
       { name: 'home', label: '首页', icon: 'home' },
       { name: 'albums', label: '专辑', icon: 'disc' },
-      { name: 'radio', label: '电台', icon: 'radio' },
       { name: 'browse', label: '文件', icon: 'folder' },
+      { name: 'radio', label: '电台', icon: 'radio' },
     ].map((item) => {
       const link = navLink(item, true);
       mobileLinks.push(link);

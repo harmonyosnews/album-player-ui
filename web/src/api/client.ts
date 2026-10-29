@@ -11,7 +11,7 @@ import type {
 } from './types';
 
 const API_BASE = import.meta.env.DEV ? '/ap' : '';
-const IMG_TS = Date.now();
+let IMG_TS = Date.now();
 
 export class ApiError extends Error {
   constructor(
@@ -98,6 +98,10 @@ export async function postConfig(payload: Record<string, unknown>): Promise<stri
 
 export function imageUrl(albumIndex: number, cacheBust: number = IMG_TS): string {
   return `${API_BASE}/?GetImage&pl=0&image=${albumIndex}&time=${cacheBust}`;
+}
+
+export function bumpImageCache(): void {
+  IMG_TS = Date.now();
 }
 
 export const api = {

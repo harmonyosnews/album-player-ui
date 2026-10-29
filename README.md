@@ -4,7 +4,7 @@ GitHub: <https://github.com/harmonyosnews/album-player-ui>
 
 **APUI 0.2.3 已实现并部署。** 这是一个与 aplayer 同源的静态 SPA，替换 `/opt/aplayer/aplayer.html` 后由 aplayer 在 **7778** 端口提供；不新增服务/端口，不改音频引擎。
 
-- 构建：Vite 7 + TypeScript；JS 65.4 KB（gzip 20.8 KB）、CSS 30.4 KB（gzip 6.7 KB）。
+- 构建：Vite 7 + TypeScript；JS 67.4 KB（gzip 21.2 KB）、CSS 30.4 KB（gzip 6.7 KB）。
 - 发布包：[release/apui-web-0.2.3.tar.gz](release/apui-web-0.2.3.tar.gz)（44 KB），sha256 `2cfa3bd5677b049aa6cedf9c62411757887789e615e7a353ad4da32e10313d88`（`sha256sum -c SHA256SUMS`）。
 - 已验证：`.133`（x86 构建/联调）、`.230`（ARM 冒烟）、`.137`（Gentooplayer 实机真实 FLAC 44.1/16/2 播放）。
 - 验收记录：[docs/06-实施与验收记录.md](docs/06-实施与验收记录.md)。
@@ -16,8 +16,8 @@ GitHub: <https://github.com/harmonyosnews/album-player-ui>
 - 首页/正在播放、专辑/曲目/艺术家、全屏播放、底部播放条。
 - 搜索、浅色/深色主题、移动端底部导航。
 - 左侧导航仅保留“发现/我的音乐”；设置入口在右上角齿轮；独立“关于”页已合并到设置 About。
-- 网络电台：分类、电台、收藏、添加/删除。
-- 播放列表/文件浏览：目录展开/折叠、载入、保存当前列表。
+- 网络电台：点击左侧入口直接进入；离开自动恢复本地模式；电台数据与本地专辑完全分离。
+- 播放列表：仅显示 aplayer 保存的 `aplayer.dat`/`.ap2`，不使用文件浏览；文件浏览独立保留。
 - 设置：右上角齿轮进入；左侧无“系统/关于”；7 个主分页 + Decoder/DSP 子分页；参数中文化；底部单一操作行（导出/导入/保存），导入导出为完整配置。
 - 离线提示、轮询退避、XSS 消毒、危险操作确认。
 

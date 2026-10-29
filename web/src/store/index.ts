@@ -36,6 +36,11 @@ export interface AppState {
   error: string;
   route: Route;
   radioMode: boolean;
+  radioAlbums: AlbumsResponse | null;
+  radioSongs: Map<number, SongsResponse>;
+  radioSongsRev: number;
+  radioLibraryRev: number;
+  radioLoading: boolean;
   radioCategory: number | null;
   radioTitle: string;
   radioPics: string[];
@@ -65,6 +70,11 @@ class Store {
     error: '',
     route: { name: 'home' },
     radioMode: false,
+    radioAlbums: null,
+    radioSongs: new Map(),
+    radioSongsRev: 0,
+    radioLibraryRev: 0,
+    radioLoading: false,
     radioCategory: null,
     radioTitle: '',
     radioPics: [],
@@ -83,6 +93,7 @@ class Store {
   private failures = 0;
   private lastRadioFetch = 0;
   private toastTimer: number | undefined;
+  private radioQueue: Promise<void> = Promise.resolve();
 
   get(): AppState {
     return this.state;
@@ -188,6 +199,10 @@ class Store {
   async refreshAlbums(): Promise<void> {
     try {
       let albums = await api.getAlbums();
+      if (this.state.radioMode) {
+        this.set({ radioAlbums: albums, radioLibraryRev: this.state.radioLibraryRev + 1, online: true });
+        return;
+      }
       if (!albums.Albums.length && !albums.AlbumList.length) {
         await this.ensureLibrary();
         albums = this.state.albums || albums;
@@ -205,6 +220,18 @@ class Store {
       const songs = new Map(this.state.songs);
       songs.set(album, data);
       this.set({ songs, songsRev: this.state.songsRev + 1 });
+    } catch (e) {
+      this.toast(this.describeError(e), 'error');
+    }
+  }
+
+  async loadRadioSongs(album: number): Promise<void> {
+    if (this.state.radioSongs.has(album)) return;
+    try {
+      const data = await api.getSongs(album);
+      const songs = new Map(this.state.radioSongs);
+      songs.set(album, data);
+      this.set({ radioSongs: songs, radioSongsRev: this.state.radioSongsRev + 1 });
     } catch (e) {
       this.toast(this.describeError(e), 'error');
     }
@@ -356,42 +383,86 @@ class Store {
     }
   }
 
-  async toggleRadioMode(): Promise<void> {
-    this.setBusy(true);
-    try {
-      const albums = await api.radioMode();
-      this.set({
-        albums,
-        radioMode: albums.RadioMode,
-        radioCategory: null,
-        songs: new Map(),
-        songsRev: this.state.songsRev + 1,
-        libraryRev: this.state.libraryRev + 1,
-      });
-      await this.refreshState();
-      if (albums.RadioMode) await this.refreshRadio();
-    } catch (e) {
-      this.toast(this.describeError(e), 'error');
-    } finally {
-      this.setBusy(false);
-    }
+  private enqueueRadio(fn: () => Promise<void>): Promise<void> {
+    const next = this.radioQueue.then(fn, fn);
+    this.radioQueue = next.catch(() => undefined);
+    return next;
   }
 
   async enterRadio(): Promise<void> {
-    if (!this.state.radioMode) await this.toggleRadioMode();
+    return this.enqueueRadio(async () => {
+      if (this.state.route.name !== 'radio') return;
+      if (this.state.radioMode) {
+        if (!this.state.radioAlbums) {
+          try {
+            const albums = await api.getAlbums();
+            this.set({ radioAlbums: albums, radioLibraryRev: this.state.radioLibraryRev + 1 });
+          } catch (e) {
+            this.toast(this.describeError(e), 'error');
+          }
+        }
+        return;
+      }
+      this.set({ radioLoading: true });
+      try {
+        const albums = await api.radioMode();
+        if (!albums.RadioMode) throw new Error('无法进入电台模式');
+        this.set({
+          radioAlbums: albums,
+          radioMode: true,
+          radioLoading: false,
+          radioCategory: null,
+          radioSongs: new Map(),
+          radioSongsRev: this.state.radioSongsRev + 1,
+          radioLibraryRev: this.state.radioLibraryRev + 1,
+          error: '',
+        });
+        await this.refreshState();
+        await this.refreshRadio();
+      } catch (e) {
+        this.set({ radioLoading: false });
+        this.toast(this.describeError(e), 'error');
+      }
+    });
   }
 
   async leaveRadio(): Promise<void> {
-    if (this.state.radioMode) {
-      await this.toggleRadioMode();
-      const albums = this.state.albums;
-      if (!albums?.Albums.length) await this.ensureLibrary();
-    }
+    return this.enqueueRadio(async () => {
+      if (this.state.route.name === 'radio') return;
+      if (!this.state.radioMode) {
+        this.set({ radioAlbums: null, radioLoading: false });
+        return;
+      }
+      this.set({ radioLoading: true });
+      try {
+        const albums = await api.radioMode();
+        const hasLocal = albums.Albums.length > 0 || albums.AlbumList.length > 0;
+        this.set({
+          radioMode: false,
+          radioAlbums: null,
+          radioCategory: null,
+          radioSongs: new Map(),
+          radioSongsRev: this.state.radioSongsRev + 1,
+          radioLoading: false,
+          ...(hasLocal ? {
+            albums,
+            songs: new Map(),
+            songsRev: this.state.songsRev + 1,
+            libraryRev: this.state.libraryRev + 1,
+          } : {}),
+        });
+        if (!hasLocal) await this.ensureLibrary();
+        await this.refreshState();
+      } catch (e) {
+        this.set({ radioLoading: false });
+        this.toast(this.describeError(e), 'error');
+      }
+    });
   }
 
   setRadioCategory(index: number | null): void {
     this.set({ radioCategory: index });
-    if (index != null) void this.loadSongs(index);
+    if (index != null) void this.loadRadioSongs(index);
   }
 
   async favor(): Promise<void> {
@@ -403,7 +474,12 @@ class Store {
     this.setBusy(true);
     try {
       const albums = await api.addStation({ name, url, folder });
-      this.set({ albums, libraryRev: this.state.libraryRev + 1 });
+      this.set({
+        radioAlbums: albums,
+        radioSongs: new Map(),
+        radioSongsRev: this.state.radioSongsRev + 1,
+        radioLibraryRev: this.state.radioLibraryRev + 1,
+      });
       this.toast('电台已添加', 'success');
       return true;
     } catch (e) {
@@ -418,7 +494,12 @@ class Store {
     this.setBusy(true);
     try {
       const albums = await api.deleteStation(album, song);
-      this.set({ albums, libraryRev: this.state.libraryRev + 1 });
+      this.set({
+        radioAlbums: albums,
+        radioSongs: new Map(),
+        radioSongsRev: this.state.radioSongsRev + 1,
+        radioLibraryRev: this.state.radioLibraryRev + 1,
+      });
       this.toast('电台已删除', 'success');
     } catch (e) {
       this.toast(this.describeError(e), 'error');
@@ -548,7 +629,17 @@ class Store {
     try {
       await api.updateCatalog(replace);
       await sleep(1200);
-      await this.refreshAlbums();
+      if (this.state.radioMode) {
+        const albums = await api.getAlbums();
+        this.set({
+          radioAlbums: albums,
+          radioSongs: new Map(),
+          radioSongsRev: this.state.radioSongsRev + 1,
+          radioLibraryRev: this.state.radioLibraryRev + 1,
+        });
+      } else {
+        await this.refreshAlbums();
+      }
       this.toast('电台目录已更新', 'success');
     } catch (e) {
       this.toast(this.describeError(e), 'error');
@@ -578,7 +669,7 @@ class Store {
     if (prev.name === 'radio' && route.name !== 'radio' && this.state.radioMode) {
       void this.leaveRadio();
     }
-    if (route.name === 'radio' && !this.state.radioMode) {
+    if (route.name === 'radio') {
       void this.enterRadio();
     }
     if (route.name === 'album' && route.album != null) {

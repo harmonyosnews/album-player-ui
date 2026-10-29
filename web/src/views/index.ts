@@ -34,19 +34,12 @@ function currentAlbumIndex(s: AppState): number | null {
   return list.length ? 0 : null;
 }
 
-function albumGrid(list: AlbumVM[]): HTMLElement {
+function albumGrid(list: AlbumVM[], opts: { onOpen?: (album: AlbumVM) => void; onPlay?: (album: AlbumVM) => void } = {}): HTMLElement {
   const grid = el('div', { class: 'album-grid' });
   for (const album of list) {
     grid.append(albumCard(album, {
-      onOpen: (a) => {
-        if (store.get().radioMode) {
-          navigate('radio');
-          store.setRadioCategory(a.index);
-        } else {
-          navigate('album', a.index);
-        }
-      },
-      onPlay: (a) => void store.play(a.index, 0),
+      onOpen: opts.onOpen || ((a) => navigate('album', a.index)),
+      onPlay: opts.onPlay || ((a) => void store.play(a.index, 0)),
     }));
   }
   return grid;
@@ -58,8 +51,8 @@ function renderHome(view: HTMLElement, s: AppState): void {
   if (!list.length) {
     page.append(emptyState(
       'disc',
-      s.radioMode ? '电台目录未载入' : '媒体库还是空的',
-      s.radioMode ? '请检查 Radio 目录或稍后刷新。' : '请在设置中填写音乐根目录，或通过“文件浏览”载入一个目录。',
+      '媒体库还是空的',
+      '请在设置中填写音乐根目录，或通过“文件浏览”载入一个目录。',
       el('div', { class: 'button-row' }, [
         el('button', { class: 'btn-primary', type: 'button', onclick: () => navigate('settings') }, [svgIcon('settings', 16), el('span', { text: '打开设置' })]),
         el('button', { class: 'btn-secondary', type: 'button', onclick: () => navigate('browse') }, [svgIcon('folder', 16), el('span', { text: '文件浏览' })]),
@@ -75,16 +68,16 @@ function renderHome(view: HTMLElement, s: AppState): void {
   const paused = !!s.player?.Paused;
   const isHeroPlaying = s.player?.Album === heroAlbum.index && (playing || paused);
   const format = s.player && (playing || paused) ? formatFormat(s.player) : '';
-  const eyebrow = s.radioMode ? '网络电台' : playing ? (paused ? '已暂停' : '正在播放') : '欢迎回来';
-  const title = s.radioMode && s.radioTitle ? s.radioTitle : heroAlbum.name;
-  const subtitle = s.radioMode ? '网络电台' : [heroAlbum.artist, heroAlbum.year].filter(Boolean).join(' · ');
+  const eyebrow = playing ? (paused ? '已暂停' : '正在播放') : '欢迎回来';
+  const title = heroAlbum.name;
+  const subtitle = [heroAlbum.artist, heroAlbum.year].filter(Boolean).join(' · ');
   const hero = el('section', { class: 'hero' }, [
     coverImage(heroAlbum.cover, 'hero-cover', 50),
     el('div', { class: 'hero-info' }, [
       el('span', { class: 'eyebrow', text: eyebrow }),
       el('h1', { class: 'hero-title', text: title }),
       el('p', { class: 'hero-sub', text: subtitle || ' ' }),
-      el('div', { class: 'hero-meta' }, [format ? badge(format) : '', s.player?.RadioTitle && s.radioMode ? badge('RADIO', 'badge-accent') : '']),
+      el('div', { class: 'hero-meta' }, [format ? badge(format) : '']),
       el('div', { class: 'hero-actions' }, [
         el('button', {
           class: 'btn-primary',
@@ -94,13 +87,13 @@ function renderHome(view: HTMLElement, s: AppState): void {
             else void store.play(heroAlbum.index, 0);
           },
         }, [svgIcon(isHeroPlaying && !paused ? 'pause' : 'play', 18), el('span', { text: isHeroPlaying ? (paused ? '继续' : '暂停') : '播放' })]),
-        el('button', { class: 'btn-secondary', type: 'button', onclick: () => navigate(s.radioMode ? 'radio' : 'album', heroAlbum.index) }, [el('span', { text: '查看专辑' })]),
+        el('button', { class: 'btn-secondary', type: 'button', onclick: () => navigate('album', heroAlbum.index) }, [el('span', { text: '查看专辑' })]),
       ]),
     ]),
   ]);
   page.append(hero);
-  page.append(sectionHeader(s.radioMode ? '电台分类' : '全部专辑', el('button', {
-    class: 'btn-text', type: 'button', onclick: () => navigate(s.radioMode ? 'radio' : 'albums'),
+  page.append(sectionHeader('全部专辑', el('button', {
+    class: 'btn-text', type: 'button', onclick: () => navigate('albums'),
   }, [el('span', { text: '查看全部' }), svgIcon('chevronRight', 14)])));
   page.append(albumGrid(list.slice(0, 12)));
   if (s.player?.LastError) {
@@ -116,7 +109,7 @@ function renderAlbums(view: HTMLElement, s: AppState): void {
     ? list.filter((a) => [a.name, a.artist, a.year, a.display].join(' ').toLowerCase().includes(q))
     : list;
   const page = el('div', { class: 'page' });
-  page.append(pageHeader(s.radioMode ? '电台分类' : '专辑', `${filtered.length} 张${s.radioMode ? '分类' : '专辑'}${q ? ` · 搜索 “${s.search}”` : ''}`, [
+  page.append(pageHeader('专辑', `${filtered.length} 张专辑${q ? ` · 搜索 “${s.search}”` : ''}`, [
     el('button', { class: 'btn-secondary', type: 'button', onclick: () => { store.refreshAlbums(); store.refreshNow(); } }, [svgIcon('refresh', 16), el('span', { text: '刷新' })]),
   ]));
   if (!filtered.length) {
@@ -141,7 +134,7 @@ function renderAlbumDetail(view: HTMLElement, s: AppState): void {
   const header = el('section', { class: 'album-hero' }, [
     coverImage(album.cover, 'album-hero-cover', 60),
     el('div', { class: 'album-hero-info' }, [
-      el('span', { class: 'eyebrow', text: s.radioMode ? '电台分类' : '专辑' }),
+      el('span', { class: 'eyebrow', text: '专辑' }),
       el('h1', { text: album.name }),
       el('p', { class: 'hero-sub', text: [album.artist, album.year].filter(Boolean).join(' · ') || ' ' }),
       el('div', { class: 'hero-actions' }, [
@@ -209,14 +202,14 @@ function renderArtistDetail(view: HTMLElement, s: AppState): void {
 function renderRadio(view: HTMLElement, s: AppState): void {
   const page = el('div', { class: 'page' });
   if (!s.radioMode) {
-    page.append(pageHeader('网络电台', 'aplayer 的电台目录'));
-    page.append(emptyState('radio', '进入电台模式', 'aplayer 的电台与本地专辑使用同一套浏览接口；进入后会按分类展示 .rad / .m3u 条目。', el('button', {
+    page.append(pageHeader('网络电台', '正在进入电台模式'));
+    page.append(emptyState('radio', s.radioLoading ? '正在进入电台模式…' : '电台模式未就绪', s.radioLoading ? '正在切换 aplayer 到电台目录，请稍候。' : '未能进入电台模式，请检查 aplayer 服务后重试。', s.radioLoading ? undefined : el('button', {
       class: 'btn-primary', type: 'button', onclick: () => void store.enterRadio(),
-    }, [svgIcon('radio', 16), el('span', { text: s.busy ? '正在进入…' : '进入电台模式' })])));
+    }, [svgIcon('radio', 16), el('span', { text: '重试' })])));
     view.append(page);
     return;
   }
-  const categories = albumList(s);
+  const categories = albumList(s, 'radio');
   const category = s.radioCategory;
   page.append(pageHeader('网络电台', s.radioTitle || '选择分类开始收听', [
     el('button', { class: 'btn-secondary', type: 'button', onclick: () => void addStationDialog(s) }, [svgIcon('plus', 16), el('span', { text: '添加电台' })]),
@@ -239,13 +232,13 @@ function renderRadio(view: HTMLElement, s: AppState): void {
       page.append(emptyState('radio', '没有电台分类', '检查 Radio 目录，或在设置中更新电台目录。'));
     } else {
       page.append(sectionHeader('分类', el('span', { class: 'muted', text: `${categories.length} 个分类` })));
-      page.append(albumGrid(categories));
+      page.append(albumGrid(categories, { onOpen: (a) => store.setRadioCategory(a.index) }));
     }
     view.append(page);
     return;
   }
 
-  const cat = albumAt(s, category);
+  const cat = albumAt(s, category, 'radio');
   if (!cat) {
     page.append(emptyState('radio', '分类不存在', '返回分类列表重试。', el('button', { class: 'btn-primary', type: 'button', onclick: () => store.setRadioCategory(null) }, [el('span', { text: '返回分类' })])));
     view.append(page);
@@ -260,9 +253,9 @@ function renderRadio(view: HTMLElement, s: AppState): void {
       el('p', { class: 'hero-sub', text: '点击电台开始播放；收藏会写入 Radio/!Favorites。' }),
     ]),
   ]));
-  const songs = s.songs.get(category);
+  const songs = s.radioSongs.get(category);
   if (!songs) {
-    void store.loadSongs(category);
+    void store.loadRadioSongs(category);
     page.append(el('div', { class: 'skeleton-list' }, Array.from({ length: 8 }, () => el('div', { class: 'skeleton-row' }))));
   } else if (!songs.Songs?.length) {
     page.append(emptyState('radio', '这个分类没有电台', '尝试其他分类。'));
@@ -300,7 +293,7 @@ function addStationDialog(s: AppState): void {
   const url = prompt('流地址 (http:// 或 https://)');
   if (!url?.trim()) return;
   if (!safeUrl(url)) { store.toast('流地址必须是 http/https', 'error'); return; }
-  const category = s.radioCategory != null ? albumAt(s, s.radioCategory)?.name || 'My Radios' : 'My Radios';
+  const category = s.radioCategory != null ? albumAt(s, s.radioCategory, 'radio')?.name || 'My Radios' : 'My Radios';
   const folder = prompt('分类目录', category);
   if (!folder?.trim()) return;
   void store.addStation(name.trim(), url.trim(), folder.trim());
@@ -318,10 +311,18 @@ function visibleDrives(s: AppState): Array<{ drive: { path: string; name: string
   return all.filter(({ drive }) => drive.name === 'aplayer.dat' || drive.path === rootPath || drive.path.startsWith(rootPath + '/'));
 }
 
+function playlistEntries(s: AppState): Array<{ drive: { path: string; name: string; level: number; expanded: number }; index: number }> {
+  const pl = s.playlists;
+  if (!pl) return [];
+  return pl.Drives
+    .map((drive, index) => ({ drive, index }))
+    .filter(({ drive }) => drive.path === '' && (drive.name === 'aplayer.dat' || /\.(ap2|dat|m3u)$/i.test(drive.name)));
+}
+
 function renderPlaylistView(view: HTMLElement, s: AppState, mode: 'playlists' | 'browse'): void {
   const page = el('div', { class: 'page' });
   const title = mode === 'playlists' ? '播放列表' : '文件浏览';
-  const subtitle = mode === 'playlists' ? 'aplayer 的列表是文件/目录；展开浏览，载入会改变当前专辑库' : '展开目录浏览；载入会把该目录作为当前播放列表';
+  const subtitle = mode === 'playlists' ? 'aplayer 保存的播放列表（aplayer.dat / .ap2）；不显示文件系统目录' : '展开目录浏览；载入会把该目录作为当前播放列表';
   const headerActions: HTMLElement[] = [
     el('button', { class: 'btn-secondary', type: 'button', onclick: () => { void store.loadPlaylists(); } }, [svgIcon('refresh', 16), el('span', { text: '刷新' })]),
   ];
@@ -333,7 +334,7 @@ function renderPlaylistView(view: HTMLElement, s: AppState, mode: 'playlists' | 
   }
   page.append(pageHeader(title, subtitle, headerActions));
   const root = String(s.config?.root_folder || '');
-  if (!root) {
+  if (mode === 'browse' && !root) {
     page.append(el('p', { class: 'inline-warn', text: '未配置音乐根目录：以下为播放器可见目录。建议在设置 → 常规中填写 root_folder。' }));
   }
   if (!s.playlists) {
@@ -342,17 +343,17 @@ function renderPlaylistView(view: HTMLElement, s: AppState, mode: 'playlists' | 
     view.append(page);
     return;
   }
-  const items = visibleDrives(s);
+  const items = mode === 'playlists' ? playlistEntries(s) : visibleDrives(s);
   if (!items.length) {
-    page.append(emptyState(mode === 'playlists' ? 'list' : 'folder', '没有可显示的条目', '检查音乐根目录或在设置中配置。'));
+    page.append(emptyState(mode === 'playlists' ? 'list' : 'folder', mode === 'playlists' ? '还没有保存的播放列表' : '没有可显示的条目', mode === 'playlists' ? '播放当前专辑后点击“保存当前”创建。' : '检查音乐根目录或在设置中配置。'));
     view.append(page);
     return;
   }
   const list = el('div', { class: 'browser-list' });
   for (const { drive, index } of items) {
-    const isFile = drive.name === 'aplayer.dat' || /\.(dat|m3u)$/i.test(drive.name);
+    const isPlaylistFile = drive.path === '' && (drive.name === 'aplayer.dat' || /\.(ap2|dat|m3u)$/i.test(drive.name));
     const actionButtons: HTMLElement[] = [];
-    if (!isFile) {
+    if (mode === 'browse' && !isPlaylistFile) {
       const expanded = drive.expanded === 1;
       actionButtons.push(el('button', {
         class: 'btn-secondary small', type: 'button', title: expanded ? '折叠目录' : '展开目录',
@@ -363,17 +364,17 @@ function renderPlaylistView(view: HTMLElement, s: AppState, mode: 'playlists' | 
       class: 'btn-secondary small', type: 'button', title: '载入为当前播放列表',
       onclick: () => void store.loadPlaylist(index),
     }, [el('span', { text: '载入' })]));
-    if (mode === 'playlists' && isFile) {
+    if (mode === 'playlists' && isPlaylistFile && drive.name !== 'aplayer.dat') {
       actionButtons.push(el('button', {
         class: 'btn-danger small', type: 'button', title: '删除列表',
         onclick: () => { if (confirm(`删除列表“${drive.name}”？`)) void store.deletePlaylist(drive.name); },
       }, [svgIcon('trash', 14)]));
     }
     const row = el('div', { class: 'browser-row', style: { paddingLeft: `${12 + Math.min(drive.level, 6) * 18}px` } }, [
-      el('span', { class: 'browser-icon' }, [svgIcon(isFile ? 'list' : 'folder', 18)]),
+      el('span', { class: 'browser-icon' }, [svgIcon(isPlaylistFile ? 'list' : 'folder', 18)]),
       el('div', { class: 'browser-meta' }, [
         el('span', { class: 'browser-name', text: cleanDisplayName(drive.name) }),
-        el('span', { class: 'browser-path', text: drive.path || '—' }),
+        el('span', { class: 'browser-path', text: mode === 'playlists' ? 'aplayer 播放列表' : (drive.path || '—') }),
       ]),
       el('div', { class: 'browser-actions' }, actionButtons),
     ]);

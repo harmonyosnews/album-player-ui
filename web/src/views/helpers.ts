@@ -8,8 +8,8 @@ export function navigate(name: string, param?: string | number): void {
   location.hash = `#/${name}${param == null ? '' : `/${encodeURIComponent(String(param))}`}`;
 }
 
-export function albumList(s: AppState): AlbumVM[] {
-  const a = s.albums;
+export function albumList(s: AppState, source: 'local' | 'radio' = 'local'): AlbumVM[] {
+  const a = source === 'radio' ? s.radioAlbums : s.albums;
   if (!a) return [];
   const n = Math.max(a.AlbumList?.length || 0, a.Albums?.length || 0);
   const out: AlbumVM[] = [];
@@ -30,8 +30,8 @@ export function albumList(s: AppState): AlbumVM[] {
   return out;
 }
 
-export function albumAt(s: AppState, index: number): AlbumVM | null {
-  const list = albumList(s);
+export function albumAt(s: AppState, index: number, source: 'local' | 'radio' = 'local'): AlbumVM | null {
+  const list = albumList(s, source);
   return list[index] || null;
 }
 

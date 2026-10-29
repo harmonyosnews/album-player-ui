@@ -2,10 +2,10 @@
 
 GitHub: <https://github.com/harmonyosnews/album-player-ui>
 
-**APUI 0.2.13 已实现并部署。** 这是一个与 aplayer 同源的静态 SPA，替换 `/opt/aplayer/aplayer.html` 后由 aplayer 在 **7778** 端口提供；不新增服务/端口，不改音频引擎。
+**APUI 0.2.14 已实现并部署。** 这是一个与 aplayer 同源的静态 SPA，替换 `/opt/aplayer/aplayer.html` 后由 aplayer 在 **7778** 端口提供；不新增服务/端口，不改音频引擎。
 
-- 构建：Vite 7 + TypeScript；JS 75.8 KB（gzip 23.7 KB）、CSS 35.1 KB（gzip 7.3 KB）。
-- 发布包：[release/apui-web-0.2.13.tar.gz](release/apui-web-0.2.13.tar.gz)（47 KB），sha256 `80ec3dfa9b30e117f9733642a2e8980734da9120e552f80d956e109527fc157e`（`sha256sum -c SHA256SUMS`）。
+- 构建：Vite 7 + TypeScript；JS 75.9 KB（gzip 23.7 KB）、CSS 35.1 KB（gzip 7.3 KB）。
+- 发布包：[release/apui-web-0.2.14.tar.gz](release/apui-web-0.2.14.tar.gz)（47 KB），sha256 `14264cefc357ad4c66c6a6ad6341166a4cabe4701b1cd9e6d0b5ae3ef94ba9ba`（`sha256sum -c SHA256SUMS`）。
 - 已验证：`.133`（x86 构建/联调）、`.230`（ARM 冒烟）、`.137`（Gentooplayer 实机 45 张专辑曲库、当前队列、真实 FLAC 44.1/16/2 播放）。
 - 验收记录：[docs/06-实施与验收记录.md](docs/06-实施与验收记录.md)。
 
@@ -43,7 +43,7 @@ GitHub: <https://github.com/harmonyosnews/album-player-ui>
 
 | 文档 | 内容 |
 |---|---|
-| [APUI 使用手册（PDF，0.2.7）](docs/APUI-0.2.7-使用手册.pdf) | 面向使用者的安装、播放、当前队列、电台、播放列表、设置、移动端与排障手册；0.2.8–0.2.13 为设置/界面样式调整与刷新播放修复 |
+| [APUI 使用手册（PDF，0.2.7）](docs/APUI-0.2.7-使用手册.pdf) | 面向使用者的安装、播放、当前队列、电台、播放列表、设置、移动端与排障手册；0.2.8–0.2.14 为设置/界面样式调整与播放修复 |
 | [00-可行性分析.md](docs/00-可行性分析.md) | 现状、接口证据、方案比较、功能覆盖、风险、Go/No-Go |
 | [01-实施方案.md](docs/01-实施方案.md) | 架构、技术选型、WBS、阶段计划、构建/部署、测试、回滚 |
 | [02-项目书.md](docs/02-项目书.md) | 目标/范围、用户故事、需求规格、页面清单、组织/预算/风险/验收 |
@@ -73,14 +73,14 @@ cd web
 npm ci
 npm run build
 npm run check
-npm run package                     # 生成 release/apui-web-0.2.13.tar.gz
+npm run package                     # 生成 release/apui-web-0.2.14.tar.gz
 ```
 
 ### 安装（热替换，无需重启 aplayer）
 
 ```bash
-tar -xzf apui-web-0.2.13.tar.gz
-cd apui-web-0.2.13
+tar -xzf apui-web-0.2.14.tar.gz
+cd apui-web-0.2.14
 ./install.sh /opt/aplayer
 # 浏览器打开 http://<player>:7778/
 ```

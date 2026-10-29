@@ -332,11 +332,16 @@ class Store {
   }
 
   async play(album: number, song: number): Promise<void> {
+    const wasPaused = !!this.state.player?.Paused;
     this.setBusy(true);
     try {
       const r = await api.play(album, song);
       if (r.Result !== 'OK') throw new Error(r.Result);
       await this.refreshState();
+      if (wasPaused && this.state.player?.Paused) {
+        await api.pause();
+        await this.refreshState();
+      }
       this.refreshNow();
     } catch (e) {
       this.toast(this.describeError(e), 'error');

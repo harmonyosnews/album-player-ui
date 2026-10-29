@@ -7,8 +7,8 @@ GitHub: https://github.com/harmonyosnews/album-player-ui
 ## 安装
 
 ```bash
-tar -xzf apui-web-0.2.6.tar.gz
-cd apui-web-0.2.6
+tar -xzf apui-web-0.2.7.tar.gz
+cd apui-web-0.2.7
 sudo ./install.sh /opt/aplayer
 ```
 
@@ -32,7 +32,8 @@ sudo ./uninstall.sh /opt/aplayer-ui-backup-<时间戳> /opt/aplayer
 
 - 只支持 aplayer 2.19 的接口；升级 aplayer 前请跑回归。
 - 仅限可信局域网；aplayer 本身无登录。
-- 不提供队列、历史、歌词、标签、多房间等 aplayer 没有的能力。
+- 首页展示根目录曲库；播放栏提供“当前播放队列”，可按专辑展开曲目并保存为 aplayer 播放列表。
+- 不提供历史、歌词、标签、多房间等 aplayer 没有的能力。
 - 设置保存会写入 `config.dat`；保存前建议备份/导出配置。
 - 静态资源白名单：只允许 html/js/css/json/png；不要手工加入 svg/字体/webp/mjs/map/txt。
 
@@ -44,8 +45,8 @@ APUI 发布包不包含 Album Player 二进制、TinyLMS 代码/资源或第三�
 
 ## 校验
 
-发布包旁会提供 `apui-web-0.2.6.tar.gz.sha256`。在发布包所在目录执行：
+发布包旁会提供 `apui-web-0.2.7.tar.gz.sha256`。在发布包所在目录执行：
 
 ```bash
-sha256sum -c apui-web-0.2.6.tar.gz.sha256
+sha256sum -c apui-web-0.2.7.tar.gz.sha256
 ```

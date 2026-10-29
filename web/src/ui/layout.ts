@@ -1,5 +1,5 @@
 import { imageUrl } from '../api/client';
-import { formatDuration, formatFormat } from '../api/sanitize';
+import { cleanDisplayName, formatDuration, formatFormat } from '../api/sanitize';
 import type { AppState } from '../store';
 import { store } from '../store';
 import { el, iconButton, svgIcon } from './dom';
@@ -26,6 +26,7 @@ export interface LayoutRefs {
     volumeWrap: HTMLElement;
     volume: HTMLInputElement;
     volumeIcon: HTMLElement;
+    queue: HTMLButtonElement;
   };
   now: {
     root: HTMLElement;
@@ -44,10 +45,22 @@ export interface LayoutRefs {
     total: HTMLElement;
     fav: HTMLButtonElement;
   };
+  queue: {
+    root: HTMLElement;
+    body: HTMLElement;
+    meta: HTMLElement;
+    save: HTMLButtonElement;
+  };
 }
 
 let dragging = false;
 let nowDragging = false;
+
+document.addEventListener('keydown', (event) => {
+  if (event.key !== 'Escape' || !store.get().queueOpen) return;
+  event.preventDefault();
+  store.closeQueue();
+});
 
 const NAV: Array<{ section: string; items: Array<{ name: string; label: string; icon: string }> }> = [
   {
@@ -233,6 +246,16 @@ export function renderLayout(app: HTMLElement): LayoutRefs {
   volume.addEventListener('change', () => void store.setVolume(Number(volume.value)));
   const volumeWrap = el('div', { class: 'volume-wrap' }, [volumeIcon, volume]);
 
+  const queueBtn = el('button', {
+    class: 'control-btn queue-btn',
+    type: 'button',
+    title: '当前播放队列',
+    'aria-label': '当前播放队列',
+    'aria-haspopup': 'dialog',
+    'aria-expanded': 'false',
+    onclick: () => void store.openQueue(),
+  }, [svgIcon('list', 18)]);
+
   const playerBar = el('footer', { class: 'player-bar' }, [
     el('div', { class: 'player-progress' }, [current, seek, total]),
     el('div', { class: 'player-main' }, [
@@ -241,7 +264,7 @@ export function renderLayout(app: HTMLElement): LayoutRefs {
         artist,
         format,
       ])]),
-      el('div', { class: 'player-center' }, [prevBtn, stopBtn, playBtn, nextBtn]),
+      el('div', { class: 'player-center' }, [prevBtn, stopBtn, playBtn, nextBtn, queueBtn]),
       el('div', { class: 'player-right' }, [volumeWrap]),
     ]),
   ]);
@@ -302,7 +325,50 @@ export function renderLayout(app: HTMLElement): LayoutRefs {
 
   const toast = el('div', { class: 'toasts', 'aria-live': 'polite' });
 
-  app.append(sidebar, main, playerBar, mobileNav, nowRoot, toast);
+  const queueMeta = el('span', { class: 'queue-meta', text: '' });
+  const queueBody = el('div', { class: 'queue-body' });
+  const queueSave = el('button', {
+    class: 'btn-primary',
+    type: 'button',
+    onclick: () => void saveQueueAsPlaylist(),
+  }, [svgIcon('check', 16), el('span', { text: '保存为播放列表' })]);
+  const queueCancel = el('button', {
+    class: 'btn-secondary',
+    type: 'button',
+    onclick: () => store.closeQueue(),
+  }, [el('span', { text: '取消' })]);
+  const queueClose = el('button', {
+    class: 'queue-close',
+    type: 'button',
+    title: '关闭',
+    'aria-label': '关闭播放队列',
+    onclick: () => store.closeQueue(),
+  }, [svgIcon('close', 20)]);
+  const queueRoot = el('div', {
+    class: 'queue-modal hidden',
+    role: 'dialog',
+    'aria-modal': 'true',
+    'aria-labelledby': 'queue-title',
+    tabindex: '-1',
+  }, [
+    el('div', { class: 'queue-backdrop', onclick: () => store.closeQueue() }),
+    el('div', { class: 'queue-panel' }, [
+      el('div', { class: 'queue-header' }, [
+        el('div', { class: 'queue-heading' }, [
+          el('h2', { id: 'queue-title', text: '当前播放队列' }),
+          queueMeta,
+        ]),
+        queueClose,
+      ]),
+      queueBody,
+      el('div', { class: 'queue-footer' }, [
+        queueSave,
+        queueCancel,
+      ]),
+    ]),
+  ]);
+
+  app.append(sidebar, main, playerBar, mobileNav, nowRoot, queueRoot, toast);
 
   return {
     view,
@@ -314,12 +380,15 @@ export function renderLayout(app: HTMLElement): LayoutRefs {
     toast,
     player: {
       cover, coverFallback, title, artist, format, play: playBtn, stop: stopBtn,
-      seek, current, total, volumeWrap, volume, volumeIcon,
+      seek, current, total, volumeWrap, volume, volumeIcon, queue: queueBtn,
     },
     now: {
       root: nowRoot, backdrop: nowBackdrop, cover: nowCover, coverFallback: nowCoverFallback,
       title: nowTitle, artist: nowArtist, album: nowAlbum, format: nowFormat, radio: nowRadio,
       play: nowPlay, stop: nowStop, seek: nowSeek, current: nowCurrent, total: nowTotal, fav: nowFav,
+    },
+    queue: {
+      root: queueRoot, body: queueBody, meta: queueMeta, save: queueSave,
     },
   };
 }
@@ -344,6 +413,191 @@ function setSeek(input: HTMLInputElement, percent: number): void {
   const value = Math.min(100, Math.max(0, percent));
   input.value = String(value);
   input.style.setProperty('--seek', `${value}%`);
+}
+
+function queuePlaylistName(): string {
+  const d = new Date();
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `播放队列 ${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}-${pad(d.getMinutes())}`;
+}
+
+function safePlaylistName(value: string): string {
+  return value.replace(/[\\/:*?"<>|\u0000-\u001f]/g, '-').replace(/\s+/g, ' ').trim();
+}
+
+async function saveQueueAsPlaylist(): Promise<void> {
+  const raw = window.prompt('请输入播放列表名称', queuePlaylistName());
+  if (raw == null) return;
+  const name = safePlaylistName(raw);
+  const ok = await store.savePlaylist(name);
+  if (ok) store.closeQueue();
+}
+
+function albumTitleAt(albums: NonNullable<AppState['albums']>, index: number): string {
+  const raw = albums.AlbumList?.[index] || albums.Albums?.[index] || '';
+  return cleanDisplayName(raw) || `专辑 ${index + 1}`;
+}
+
+function buildQueueBody(body: HTMLElement, s: AppState): void {
+  body.innerHTML = '';
+  const albums = s.radioMode ? s.radioAlbums : s.albums;
+  const songMap = s.radioMode ? s.radioSongs : s.songs;
+  if (!albums) {
+    body.append(el('div', { class: 'queue-empty' }, [svgIcon('list', 28), el('p', { text: '播放队列尚未载入' })]));
+    return;
+  }
+  let indices: number[];
+  if (s.radioMode) {
+    if (s.radioCategory == null) {
+      body.append(el('div', { class: 'queue-empty' }, [svgIcon('radio', 28), el('p', { text: '请先在网络电台中选择一个分类' })]));
+      return;
+    }
+    indices = [s.radioCategory];
+  } else {
+    const count = Math.max(albums.AlbumList?.length || 0, albums.Albums?.length || 0);
+    indices = Array.from({ length: count }, (_, i) => i);
+  }
+  if (!indices.length) {
+    body.append(el('div', { class: 'queue-empty' }, [svgIcon('list', 28), el('p', { text: '当前播放队列为空' })]));
+    return;
+  }
+
+  const currentAlbum = s.player?.Album;
+  const currentSong = s.player?.Song;
+  for (let position = 0; position < indices.length; position++) {
+    const index = indices[position]!;
+    const data = songMap.get(index);
+    const tracks = data?.Songs || [];
+    const group = el('section', {
+      class: `queue-group${currentAlbum === index ? ' current' : ''}`,
+      dataset: { album: String(index) },
+    });
+    const artist = cleanDisplayName(albums.AuthorList?.[index] || '');
+    const metaText = [
+      artist,
+      s.radioMode ? '电台分类' : '',
+      data ? `${tracks.length} 首` : '点击载入曲目',
+    ].filter(Boolean).join(' · ');
+    const meta = el('span', { class: 'queue-album-meta', text: metaText });
+    const head = el('button', {
+      class: 'queue-album',
+      type: 'button',
+      title: data ? '曲目已载入' : '载入该专辑曲目',
+      onclick: () => {
+        if (data || head.dataset.loading === '1') return;
+        head.dataset.loading = '1';
+        meta.textContent = '正在载入曲目…';
+        const load = s.radioMode ? store.loadRadioSongs(index) : store.loadSongs(index);
+        void load.finally(() => {
+          delete head.dataset.loading;
+          if (head.isConnected && meta.textContent === '正在载入曲目…') meta.textContent = metaText;
+        });
+      },
+    }, [
+      el('span', { class: 'queue-album-index', text: String(position + 1).padStart(2, '0') }),
+      el('span', { class: 'queue-album-name', text: albumTitleAt(albums, index) }),
+      meta,
+    ]);
+    group.append(head);
+
+    if (data && !tracks.length) {
+      group.append(el('p', { class: 'queue-group-empty', text: '该专辑没有可播放的曲目' }));
+    }
+    for (let song = 0; song < tracks.length; song++) {
+      const active = currentAlbum === index && currentSong === song;
+      const title = cleanDisplayName(tracks[song] || '') || `曲目 ${song + 1}`;
+      const length = data?.SongsLen?.[song];
+      group.append(el('button', {
+        class: `queue-track${active ? ' current' : ''}`,
+        type: 'button',
+        'aria-current': active ? 'true' : undefined,
+        onclick: () => {
+          void store.play(index, song);
+          store.closeQueue();
+        },
+      }, [
+        el('span', { class: 'queue-track-no' }, [
+          active ? svgIcon('play', 11) : document.createTextNode(String(song + 1)),
+        ]),
+        el('span', { class: 'queue-track-title', text: title }),
+        length ? el('span', { class: 'queue-track-time', text: formatDuration(length) }) : '',
+      ]));
+    }
+    body.append(group);
+  }
+}
+
+function updateQueue(refs: LayoutRefs, s: AppState): void {
+  const wasOpen = refs.queue.root.dataset.open === '1';
+  const opening = s.queueOpen && !wasOpen;
+  refs.queue.root.classList.toggle('hidden', !s.queueOpen);
+  refs.queue.root.dataset.open = s.queueOpen ? '1' : '';
+  refs.player.queue.setAttribute('aria-expanded', s.queueOpen ? 'true' : 'false');
+  refs.player.queue.classList.toggle('active', s.queueOpen);
+  document.body.classList.toggle('queue-open', s.queueOpen);
+  if (!s.queueOpen) {
+    refs.queue.body.dataset.sig = '';
+    if (wasOpen) refs.player.queue.focus({ preventScroll: true });
+    return;
+  }
+
+  const albums = s.radioMode ? s.radioAlbums : s.albums;
+  const songMap = s.radioMode ? s.radioSongs : s.songs;
+  const count = albums ? Math.max(albums.AlbumList?.length || 0, albums.Albums?.length || 0) : 0;
+  const displayed = s.radioMode ? (s.radioCategory == null ? 0 : 1) : count;
+  const loaded = s.radioMode
+    ? (s.radioCategory != null && songMap.has(s.radioCategory) ? 1 : 0)
+    : Array.from(songMap.keys()).filter((i) => i < count).length;
+  const metaParts = s.radioMode
+    ? (s.radioCategory != null && albums ? [albumTitleAt(albums, s.radioCategory), '网络电台'] : ['未选择分类'])
+    : [`${count} 张专辑`, `${loaded} 张已载入`];
+  if (s.queueLoading) metaParts.push('正在读取…');
+  refs.queue.meta.textContent = metaParts.join(' · ');
+  refs.queue.save.disabled = !albums || s.busy || displayed === 0;
+
+  const sig = [
+    s.radioMode ? 1 : 0,
+    s.queueLoading ? 1 : 0,
+    s.radioMode ? s.radioLibraryRev : s.libraryRev,
+    s.radioMode ? s.radioSongsRev : s.songsRev,
+    s.radioCategory ?? '',
+    s.player?.Album ?? -1,
+    s.player?.Song ?? -1,
+    s.player?.Playing ? 1 : 0,
+    count,
+    Array.from(songMap.entries()).map(([k, v]) => `${k}:${v.Songs?.length || 0}`).join(','),
+  ].join('|');
+  if (refs.queue.body.dataset.sig !== sig) {
+    const focused = document.activeElement;
+    const focusedAlbum = focused instanceof HTMLElement && refs.queue.body.contains(focused)
+      ? focused.closest<HTMLElement>('.queue-group')?.dataset.album
+      : undefined;
+    const scrollTop = refs.queue.body.scrollTop;
+    refs.queue.body.dataset.sig = sig;
+    buildQueueBody(refs.queue.body, s);
+    if (focusedAlbum != null) {
+      refs.queue.body
+        .querySelector<HTMLElement>(`.queue-group[data-album="${focusedAlbum}"] .queue-album`)
+        ?.focus({ preventScroll: true });
+    }
+    if (opening) {
+      window.requestAnimationFrame(() => {
+        const current = refs.queue.body.querySelector<HTMLElement>('.queue-group.current');
+        if (!current) {
+          refs.queue.body.scrollTop = 0;
+          return;
+        }
+        const bodyBox = refs.queue.body.getBoundingClientRect();
+        const currentBox = current.getBoundingClientRect();
+        refs.queue.body.scrollTop += currentBox.top - bodyBox.top - bodyBox.height / 2 + currentBox.height / 2;
+      });
+    } else {
+      refs.queue.body.scrollTop = scrollTop;
+    }
+  }
+  if (opening) {
+    window.requestAnimationFrame(() => refs.queue.root.focus({ preventScroll: true }));
+  }
 }
 
 export function updateLayout(refs: LayoutRefs, s: AppState): void {
@@ -453,4 +707,6 @@ export function updateLayout(refs: LayoutRefs, s: AppState): void {
   } else {
     refs.toast.innerHTML = '';
   }
+
+  updateQueue(refs, s);
 }

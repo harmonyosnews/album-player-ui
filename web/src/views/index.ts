@@ -92,10 +92,8 @@ function renderHome(view: HTMLElement, s: AppState): void {
     ]),
   ]);
   page.append(hero);
-  page.append(sectionHeader('全部专辑', el('button', {
-    class: 'btn-text', type: 'button', onclick: () => navigate('albums'),
-  }, [el('span', { text: '查看全部' }), svgIcon('chevronRight', 14)])));
-  page.append(albumGrid(list.slice(0, 12)));
+  page.append(sectionHeader('全部专辑', el('span', { class: 'muted', text: `${list.length} 张` })));
+  page.append(albumGrid(list));
   if (s.player?.LastError) {
     page.append(el('p', { class: 'inline-error', text: s.player.LastError }));
   }

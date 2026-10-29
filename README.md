@@ -2,11 +2,11 @@
 
 GitHub: <https://github.com/harmonyosnews/album-player-ui>
 
-**APUI 0.2.3 已实现并部署。** 这是一个与 aplayer 同源的静态 SPA，替换 `/opt/aplayer/aplayer.html` 后由 aplayer 在 **7778** 端口提供；不新增服务/端口，不改音频引擎。
+**APUI 0.2.7 已实现并部署。** 这是一个与 aplayer 同源的静态 SPA，替换 `/opt/aplayer/aplayer.html` 后由 aplayer 在 **7778** 端口提供；不新增服务/端口，不改音频引擎。
 
-- 构建：Vite 7 + TypeScript；JS 67.4 KB（gzip 21.2 KB）、CSS 30.4 KB（gzip 6.7 KB）。
-- 发布包：[release/apui-web-0.2.3.tar.gz](release/apui-web-0.2.3.tar.gz)（44 KB），sha256 `2cfa3bd5677b049aa6cedf9c62411757887789e615e7a353ad4da32e10313d88`（`sha256sum -c SHA256SUMS`）。
-- 已验证：`.133`（x86 构建/联调）、`.230`（ARM 冒烟）、`.137`（Gentooplayer 实机真实 FLAC 44.1/16/2 播放）。
+- 构建：Vite 7 + TypeScript；JS 74.8 KB（gzip 23.4 KB）、CSS 34.6 KB（gzip 7.3 KB）。
+- 发布包：[release/apui-web-0.2.7.tar.gz](release/apui-web-0.2.7.tar.gz)（47 KB），sha256 `0ff3a844b71524015e75d825cdc0a65a502bb12f9c740310e99bb14e8ffc3605`（`sha256sum -c SHA256SUMS`）。
+- 已验证：`.133`（x86 构建/联调）、`.230`（ARM 冒烟）、`.137`（Gentooplayer 实机 45 张专辑曲库、当前队列、真实 FLAC 44.1/16/2 播放）。
 - 验收记录：[docs/06-实施与验收记录.md](docs/06-实施与验收记录.md)。
 
 ---
@@ -14,6 +14,8 @@ GitHub: <https://github.com/harmonyosnews/album-player-ui>
 ## 功能
 
 - 首页/正在播放、专辑/曲目/艺术家、全屏播放、底部播放条。
+- 首页始终载入配置的根目录曲库；不再把上一次的当前播放列表当作首页。
+- 播放条“当前播放队列”：按专辑展开曲目、当前曲目高亮、保存为 aplayer 播放列表、取消/Esc 关闭。
 - 搜索、浅色/深色主题、移动端底部导航。
 - 左侧导航仅保留“发现/我的音乐”；设置入口在右上角齿轮；独立“关于”页已合并到设置 About。
 - 网络电台：点击左侧入口直接进入；离开自动恢复本地模式；电台数据与本地专辑完全分离。
@@ -21,7 +23,7 @@ GitHub: <https://github.com/harmonyosnews/album-player-ui>
 - 设置：右上角齿轮进入；左侧无“系统/关于”；7 个主分页 + Decoder/DSP 子分页；参数中文化；底部单一操作行（导出/导入/保存），导入导出为完整配置。
 - 离线提示、轮询退避、XSS 消毒、危险操作确认。
 
-**不做**：队列、历史、歌词、标签、智能推荐、多房间、UPnP 7779（aplayer 无对应接口或超范围）。
+**不做**：队列编辑/重排、历史、歌词、标签、智能推荐、多房间、UPnP 7779（aplayer 无对应接口或超范围）。
 
 ---
 
@@ -30,6 +32,10 @@ GitHub: <https://github.com/harmonyosnews/album-player-ui>
 | 首页 | 播放 | 设置 | 移动端 |
 |---|---|---|---|
 | <img src="docs/screenshots/home.png" width="280" alt="首页"> | <img src="docs/screenshots/playing.png" width="280" alt="播放"> | <img src="docs/screenshots/settings.png" width="280" alt="设置"> | <img src="docs/screenshots/mobile.png" width="140" alt="移动端"> |
+
+| 当前播放队列 | 移动端队列 |
+|---|---|
+| <img src="docs/screenshots/queue.png" width="420" alt="当前播放队列"> | <img src="docs/screenshots/queue-mobile.png" width="180" alt="移动端队列"> |
 
 更多截图见 [docs/screenshots](docs/screenshots)。
 
@@ -66,14 +72,14 @@ cd web
 npm ci
 npm run build
 npm run check
-npm run package                     # 生成 release/apui-web-0.2.3.tar.gz
+npm run package                     # 生成 release/apui-web-0.2.7.tar.gz
 ```
 
 ### 安装（热替换，无需重启 aplayer）
 
 ```bash
-tar -xzf apui-web-0.2.3.tar.gz
-cd apui-web-0.2.3
+tar -xzf apui-web-0.2.7.tar.gz
+cd apui-web-0.2.7
 ./install.sh /opt/aplayer
 # 浏览器打开 http://<player>:7778/
 ```
@@ -86,11 +92,11 @@ cd apui-web-0.2.3
 ./uninstall.sh /opt/aplayer-ui-backup-<时间戳> /opt/aplayer
 ```
 
-已实测：`.133` 恢复厂商 UI 后 `aplayer.html` md5 = `18f08f90b549b2646340d501a8761da0`；再装回 APUI md5 = `d9d6d61f334fd8f66cfab25f007c6637`。
+已实测：`.133` 恢复厂商 UI 后可正常回装 APUI；热替换不需要重启 aplayer。
 
 ### 配置媒体库
 
-设置 → 常规 → 音乐根目录，填写 aplayer 可访问的目录（不带首尾 `/`，例如 `opt/aplayer/music` 或 `mnt/samba/Test`）。保存后刷新；UI 会自动 `GetPlaylists` → `GetPlaylist` 载入该目录。
+设置 → 常规 → 音乐根目录，填写 aplayer 可访问的目录（不带首尾 `/`，例如 `opt/aplayer/music` 或 `mnt/samba/Test`）。保存后刷新；UI 在初始化/回到首页时会自动 `GetPlaylists` → `GetPlaylist` 载入该目录，确保首页展示整个曲库。
 
 ---
 
@@ -154,7 +160,12 @@ cd apui-web-0.2.3
 
 | 版本 | 日期 | 变更 |
 |---|---|---|
-| 0.2.1 | 2026-10-29 | 左侧移除系统分栏；右上角新增设置入口；关于合并进设置；设置参数中文化；发布包 0.2.1 |
+| 0.2.7 | 2026-10-29 | 首页始终载入根目录曲库；播放栏新增当前播放队列（按专辑展开、保存为播放列表、Esc/取消关闭）；三机部署 |
+| 0.2.6 | 2026-10-29 | 电台直接进入/离开自动退出、独立电台数据；播放列表只显示 aplayer 列表；三机部署 |
+| 0.2.5 | 2026-10-29 | 移动端设置排布/开关行/控件全宽优化；顶部图标收紧 |
+| 0.2.3 | 2026-10-29 | 底部操作合并一行、整包导入导出说明、播放进度条可见性修复；三机部署 |
+| 0.2.2 | 2026-10-29 | 设置页收窄居中、行距压缩、字体加粗、输入框可见性提升 |
+| 0.2.1 | 2026-10-29 | 左侧移除系统分栏；右上角设置入口；关于合并进设置；设置参数中文化；发布包 0.2.1 |
 | 0.2.0 | 2026-10-29 | 设置页按官方 7 主分页 + Decoder/DSP 子分页重构；补齐 General/DSD/DVD-A/Radio/DSP/System/Card 参数 |
 | 0.1.0 | 2026-10-29 | 首个可部署 MVP；三机部署；`.137` 实机播放通过；发布包/文档 |
 | v1.0 文档 | 2026-10-29 | 可行性/方案/项目书/开发手册/接口/证据 |

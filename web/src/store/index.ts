@@ -41,6 +41,8 @@ export interface AppState {
   radioSongsRev: number;
   radioLibraryRev: number;
   radioLoading: boolean;
+  queueOpen: boolean;
+  queueLoading: boolean;
   radioCategory: number | null;
   radioTitle: string;
   radioPics: string[];
@@ -50,6 +52,9 @@ export interface AppState {
   toast: Toast | null;
   playlists: PlaylistsResponse | null;
   libraryRev: number;
+  libraryRootIndex: number | null;
+  activePlaylistIndex: number | null;
+  libraryLoading: boolean;
   configRev: number;
 }
 
@@ -75,6 +80,8 @@ class Store {
     radioSongsRev: 0,
     radioLibraryRev: 0,
     radioLoading: false,
+    queueOpen: false,
+    queueLoading: false,
     radioCategory: null,
     radioTitle: '',
     radioPics: [],
@@ -84,6 +91,9 @@ class Store {
     toast: null,
     playlists: null,
     libraryRev: 0,
+    libraryRootIndex: null,
+    activePlaylistIndex: null,
+    libraryLoading: false,
     configRev: 0,
   };
 
@@ -124,12 +134,18 @@ class Store {
     try {
       const config = await api.getConfig();
       this.set({ config, configRev: this.state.configRev + 1 });
-      let albums = await api.getAlbums();
-      if (!albums.Albums.length && !albums.AlbumList.length) {
-        const loaded = await this.ensureLibrary();
-        if (loaded) albums = this.state.albums || albums;
-      }
       const player = await api.getState();
+      let albums = this.state.albums;
+      if (player.RadioMode) {
+        const radioAlbums = await api.getAlbums();
+        this.set({ radioAlbums, radioMode: true });
+      } else {
+        albums = await api.getAlbums();
+        if (String(config.root_folder || '').trim()) {
+          await this.ensureLibrary(true);
+          albums = this.state.albums || albums;
+        }
+      }
       this.set({
         albums,
         player,
@@ -140,6 +156,7 @@ class Store {
         libraryRev: this.state.libraryRev + 1,
       });
       this.startPolling();
+      if (this.state.route.name === 'radio') void this.enterRadio();
     } catch (e) {
       this.set({ online: false, ready: true, error: this.describeError(e) });
     }
@@ -181,19 +198,32 @@ class Store {
     return null;
   }
 
-  async ensureLibrary(): Promise<boolean> {
+  async ensureLibrary(force = false): Promise<boolean> {
     const root = String(this.state.config?.root_folder || '').trim();
-    if (!root) return false;
-    const pl = await api.getPlaylists(-1);
-    this.set({ playlists: pl });
-    const idx = this.findDriveIndex(pl, root);
-    if (idx == null) return false;
-    await api.getPlaylist(idx);
-    await sleep(700);
-    const albums = await api.getAlbums();
-    if (!albums.Albums.length && !albums.AlbumList.length) return false;
-    this.set({ albums, songs: new Map(), songsRev: this.state.songsRev + 1, libraryRev: this.state.libraryRev + 1 });
-    return true;
+    if (!root || this.state.libraryLoading) return false;
+    this.set({ libraryLoading: true });
+    try {
+      const pl = await api.getPlaylists(-1);
+      this.set({ playlists: pl });
+      const idx = this.findDriveIndex(pl, root);
+      if (idx == null) return false;
+      if (!force && this.state.activePlaylistIndex === idx && this.state.libraryRootIndex === idx) return true;
+      await api.getPlaylist(idx);
+      await sleep(700);
+      const albums = await api.getAlbums();
+      if (!albums.Albums.length && !albums.AlbumList.length) return false;
+      this.set({
+        albums,
+        songs: new Map(),
+        songsRev: this.state.songsRev + 1,
+        libraryRev: this.state.libraryRev + 1,
+        libraryRootIndex: idx,
+        activePlaylistIndex: idx,
+      });
+      return true;
+    } finally {
+      this.set({ libraryLoading: false });
+    }
   }
 
   async refreshAlbums(): Promise<void> {
@@ -460,6 +490,69 @@ class Store {
     });
   }
 
+  async openQueue(): Promise<void> {
+    this.set({ queueOpen: true });
+    const radio = this.state.radioMode;
+    const albums = radio ? this.state.radioAlbums : this.state.albums;
+    if (!albums) return;
+
+    const total = Math.max(albums.AlbumList?.length || 0, albums.Albums?.length || 0);
+    let indices: number[];
+    if (radio) {
+      if (this.state.radioCategory == null) return;
+      indices = [this.state.radioCategory];
+    } else {
+      // Small queues are expanded fully; large libraries load the current album
+      // first and let the user expand other albums on demand.
+      indices = Array.from({ length: total }, (_, i) => i);
+      if (indices.length > 12) {
+        const current = this.state.player?.Album;
+        indices = current != null && current >= 0 && current < total ? [current] : [];
+      }
+    }
+    if (!indices.length) return;
+
+    const current = this.state.player?.Album;
+    if (current != null && indices.includes(current)) {
+      indices.splice(indices.indexOf(current), 1);
+      indices.unshift(current);
+    }
+
+    const source = radio ? this.state.radioSongs : this.state.songs;
+    const map = new Map(source);
+    this.set({ queueLoading: true });
+    try {
+      for (const index of indices) {
+        if (!this.state.queueOpen || this.state.radioMode !== radio) break;
+        if (map.has(index)) continue;
+        try {
+          const data = await api.getSongs(index);
+          if (!this.state.queueOpen || this.state.radioMode !== radio) break;
+          map.set(index, data);
+          if (radio) {
+            this.set({
+              radioSongs: new Map(map),
+              radioSongsRev: this.state.radioSongsRev + 1,
+            });
+          } else {
+            this.set({
+              songs: new Map(map),
+              songsRev: this.state.songsRev + 1,
+            });
+          }
+        } catch {
+          /* keep the queue usable even if one album cannot be read */
+        }
+      }
+    } finally {
+      this.set({ queueLoading: false });
+    }
+  }
+
+  closeQueue(): void {
+    this.set({ queueOpen: false });
+  }
+
   setRadioCategory(index: number | null): void {
     this.set({ radioCategory: index });
     if (index != null) void this.loadRadioSongs(index);
@@ -532,6 +625,7 @@ class Store {
     this.setBusy(true);
     try {
       await api.getPlaylist(index);
+      this.set({ activePlaylistIndex: index });
       await sleep(600);
       await this.refreshAlbums();
       if (location.hash !== '#/albums') location.hash = '#/albums';
@@ -543,19 +637,21 @@ class Store {
     }
   }
 
-  async savePlaylist(name: string): Promise<void> {
+  async savePlaylist(name: string): Promise<boolean> {
     const n = name.trim();
     if (!n) {
       this.toast('请输入播放列表名称', 'warn');
-      return;
+      return false;
     }
     this.setBusy(true);
     try {
       const playlists = await api.savePlaylist(n);
       this.set({ playlists });
       this.toast('播放列表已保存', 'success');
+      return true;
     } catch (e) {
       this.toast(this.describeError(e), 'error');
+      return false;
     } finally {
       this.setBusy(false);
     }
@@ -670,10 +766,13 @@ class Store {
       void this.leaveRadio();
     }
     if (route.name === 'radio') {
-      void this.enterRadio();
+      if (this.state.ready) void this.enterRadio();
     }
     if (route.name === 'album' && route.album != null) {
       void this.loadSongs(route.album);
+    }
+    if (route.name === 'home' && !this.state.radioMode && String(this.state.config?.root_folder || '').trim()) {
+      void this.ensureLibrary(false);
     }
   }
 

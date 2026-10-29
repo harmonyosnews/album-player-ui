@@ -1,0 +1,47 @@
+{
+	"Albums" : [
+		"The Tape Club - 2022 - Analog Dreams  [00:24]  flac",
+		"Luna Park - 2024 - Aurora Sessions  [00:24]  flac",
+		"Mira Chen - 2023 - Blue Hour  [00:24]  flac",
+		"林川 - 2025 - 夜航  [00:24]  flac"
+	],
+	"AlbumList" : [
+		"Analog Dreams",
+		"Aurora Sessions",
+		"Blue Hour",
+		"夜航"
+	],
+	"AuthorList" : [
+		"The Tape Club",
+		"Luna Park",
+		"Mira Chen",
+		"林川"
+	],
+	"YearList" : [
+		"2022",
+		"2024",
+		"2023",
+		"2025"
+	],
+	"Songs" : [
+		{
+			"Songs" : [
+				"Warm Static",
+				"Reel Two",
+				"Sunset"
+			],
+			"SongsLen" : [
+				7000,
+				8000,
+				9000
+			]
+		}
+	],
+	"Playlists" : [
+		"aplayer.dat",
+		"<span style='color:rgb(255,255,144)'>&#8862; </span>music"
+	],
+	"SavedAlbumIndex" : 0,
+	"SavedSongIndex" : 0,
+	"RadioMode" : false
+}

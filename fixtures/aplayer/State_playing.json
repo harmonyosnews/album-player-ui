@@ -1,0 +1,20 @@
+{
+	"Playing" : true,
+	"Paused" : false,
+	"ProgressVisible" : true,
+	"Volume" : 100,
+	"Album" : 0,
+	"Song" : 0,
+	"Bitrate" : 107,
+	"Bps" : 16,
+	"Ch" : 2,
+	"Position" : 2004,
+	"Freq" : 44100,
+	"PlayingLen" : 7000,
+	"PlayingName" : "Warm Static",
+	"RadioTitle" : "",
+	"RadioMode" : false,
+	"RadioPictures" : true,
+	"LastError" : "",
+	"Scanning" : false
+}

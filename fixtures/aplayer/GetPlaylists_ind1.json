@@ -1,0 +1,48 @@
+{
+	"Playlists" : [
+		"aplayer.dat",
+		"<span style='color:rgb(255,255,144)'>&#8863; </span>music",
+		"&nbsp;&nbsp;&nbsp;&nbsp;Analog Dreams",
+		"&nbsp;&nbsp;&nbsp;&nbsp;Aurora Sessions",
+		"&nbsp;&nbsp;&nbsp;&nbsp;Blue Hour",
+		"&nbsp;&nbsp;&nbsp;&nbsp;夜航"
+	],
+	"Drives" : [
+		{
+			"path" : "",
+			"name" : "aplayer.dat",
+			"level" : 0,
+			"expanded" : 0
+		},
+		{
+			"path" : "/opt/aplayer/music",
+			"name" : "music",
+			"level" : 0,
+			"expanded" : 1
+		},
+		{
+			"path" : "/opt/aplayer/music/Analog Dreams",
+			"name" : "Analog Dreams",
+			"level" : 1,
+			"expanded" : 2
+		},
+		{
+			"path" : "/opt/aplayer/music/Aurora Sessions",
+			"name" : "Aurora Sessions",
+			"level" : 1,
+			"expanded" : 2
+		},
+		{
+			"path" : "/opt/aplayer/music/Blue Hour",
+			"name" : "Blue Hour",
+			"level" : 1,
+			"expanded" : 2
+		},
+		{
+			"path" : "/opt/aplayer/music/夜航",
+			"name" : "夜航",
+			"level" : 1,
+			"expanded" : 2
+		}
+	]
+}

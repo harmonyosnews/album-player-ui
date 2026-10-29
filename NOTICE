@@ -1,0 +1,31 @@
+APUI
+Copyright 2026 harmonyosnews
+
+This product includes software developed by the APUI project and is
+licensed under the Apache License, Version 2.0 (the "License").
+You may obtain a copy of the License at:
+
+    https://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+Third-party notice
+------------------
+Album Player for Linux is a separate third-party product. It is not
+included in this distribution. APUI only communicates with an existing
+Album Player installation through its local HTTP interface. Album Player
+and its marks belong to their respective owners.
+
+TinyLMS is a separate third-party product. It was used only as a visual
+and interaction reference. No TinyLMS code or assets are included in
+this distribution.
+
+Build and test tools (including Vite, TypeScript, Playwright and
+Chromium) are development-time dependencies and are not included in the
+runtime distribution.
+
+See THIRD-PARTY-NOTICES.md for details.

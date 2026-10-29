@@ -1,0 +1,16 @@
+# Local analysis snapshots (third-party assets, not for redistribution)
+work/
+# Full local GUI evidence; curated copies live in docs/screenshots/
+gui-test-screenshots/
+# Build/dependency output
+web/node_modules/
+web/dist/
+web/.vite/
+release/apui-web-*/
+# Logs / local secrets
+*.log
+.env
+.env.*
+*.token
+.DS_Store
+__pycache__/

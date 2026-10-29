@@ -1,0 +1,20 @@
+{
+	"Playing" : false,
+	"Paused" : false,
+	"ProgressVisible" : true,
+	"Volume" : 100,
+	"Album" : 1,
+	"Song" : 0,
+	"Bitrate" : 107,
+	"Bps" : 16,
+	"Ch" : 2,
+	"Position" : 4008,
+	"Freq" : 44100,
+	"PlayingLen" : 7000,
+	"PlayingName" : "First Light",
+	"RadioTitle" : "",
+	"RadioMode" : false,
+	"RadioPictures" : true,
+	"LastError" : "",
+	"Scanning" : false
+}

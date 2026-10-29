@@ -4,7 +4,7 @@ GitHub: <https://github.com/harmonyosnews/album-player-ui>
 
 **APUI 0.2.3 已实现并部署。** 这是一个与 aplayer 同源的静态 SPA，替换 `/opt/aplayer/aplayer.html` 后由 aplayer 在 **7778** 端口提供；不新增服务/端口，不改音频引擎。
 
-- 构建：Vite 7 + TypeScript；JS 65.4 KB（gzip 20.8 KB）、CSS 29.6 KB（gzip 6.4 KB）。
+- 构建：Vite 7 + TypeScript；JS 65.4 KB（gzip 20.8 KB）、CSS 30.4 KB（gzip 6.7 KB）。
 - 发布包：[release/apui-web-0.2.3.tar.gz](release/apui-web-0.2.3.tar.gz)（44 KB），sha256 `2cfa3bd5677b049aa6cedf9c62411757887789e615e7a353ad4da32e10313d88`（`sha256sum -c SHA256SUMS`）。
 - 已验证：`.133`（x86 构建/联调）、`.230`（ARM 冒烟）、`.137`（Gentooplayer 实机真实 FLAC 44.1/16/2 播放）。
 - 验收记录：[docs/06-实施与验收记录.md](docs/06-实施与验收记录.md)。

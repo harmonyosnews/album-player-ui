@@ -207,8 +207,8 @@ const FIELDS: FieldSpec[] = [
   { key: 'lock_memory', label: '锁定内存', kind: 'bool', tab: 'system' },
   { key: 'affinity_mode', label: 'CPU 核心选择', kind: 'select', tab: 'system', options: AFFINITY },
 
-  // 声卡 → Scream 投屏
-  { key: 'ch_scr', label: 'Scream 投屏', kind: 'bool', tab: 'card' },
+  // 声卡 → Scream 桥
+  { key: 'ch_scr', label: 'Scream 桥', kind: 'bool', tab: 'card' },
   { key: 'ch_tcp', label: 'TCP', kind: 'bool', tab: 'card' },
   { key: 'ip_scr', label: '接收端 IP', kind: 'string', tab: 'card' },
   { key: 'pt_scr', label: '端口', kind: 'int', tab: 'card', min: 1, max: 65535 },
@@ -290,7 +290,9 @@ function renderFieldGroups(tab: MainTab, sub: SubTab | null, config: Config, con
     }
     const control = fieldControl(spec, config);
     controls.set(spec.key, control);
-    form.append(settingRow(spec.label, control.node, spec.hint || ''));
+    const row = settingRow(spec.label, control.node, spec.hint || '');
+    if (spec.kind === 'bool' || spec.kind === 'intbool') row.classList.add('is-switch');
+    form.append(row);
   }
   return form;
 }
@@ -348,10 +350,7 @@ export function renderSettings(view: HTMLElement, s: AppState): void {
 
   const body = el('div', { class: 'settings-body' });
   const header = el('div', { class: 'page-header settings-header' }, [
-    el('div', {}, [
-      el('h1', { text: '设置' }),
-      el('p', { class: 'subtitle', text: 'Album Player 设置 · 保存/导入/导出均作用于完整配置（全部可写字段），不是当前分页' }),
-    ]),
+    el('div', {}, [el('h1', { text: '设置' })]),
   ]);
   body.append(header);
 
@@ -360,12 +359,12 @@ export function renderSettings(view: HTMLElement, s: AppState): void {
     if (Object.keys(patch).length) void store.saveSettings(patch);
   };
 
+  const tip = '完整配置操作：导入/导出/保存覆盖全部分页的可写字段。';
   const actions = (canSave: boolean): HTMLElement => el('div', { class: 'settings-actions' }, [
-    el('span', { class: 'settings-action-note', text: '完整配置操作：导入/导出/保存覆盖全部分页的可写字段。' }),
     el('div', { class: 'button-row' }, [
-      el('button', { class: 'btn-secondary', type: 'button', title: '导出完整配置（全部分页）', onclick: () => store.exportConfig() }, [svgIcon('external', 16), el('span', { text: '导出配置' })]),
-      el('button', { class: 'btn-secondary', type: 'button', title: '导入完整配置（全部分页）', onclick: () => triggerImport() }, [svgIcon('folder', 16), el('span', { text: '导入配置' })]),
-      canSave ? el('button', { class: 'btn-primary', type: 'button', onclick: save }, [svgIcon('check', 18), el('span', { text: '保存设置' })]) : '',
+      el('button', { class: 'btn-secondary', type: 'button', title: tip, 'aria-label': tip, onclick: () => store.exportConfig() }, [svgIcon('external', 16), el('span', { text: '导出配置' })]),
+      el('button', { class: 'btn-secondary', type: 'button', title: tip, 'aria-label': tip, onclick: () => triggerImport() }, [svgIcon('folder', 16), el('span', { text: '导入配置' })]),
+      canSave ? el('button', { class: 'btn-primary', type: 'button', title: tip, 'aria-label': tip, onclick: save }, [svgIcon('check', 18), el('span', { text: '保存设置' })]) : '',
     ]),
   ]);
 

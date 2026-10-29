@@ -117,7 +117,7 @@ export function renderLayout(app: HTMLElement): LayoutRefs {
       ]);
     })),
     el('div', { class: 'sidebar-footer' }, [
-      el('span', { class: 'version', text: 'UI 0.1 · aplayer 2.19' }),
+      el('span', { class: 'version', text: `UI ${__APUI_VERSION__} · aplayer 2.19` }),
     ]),
   ]);
 

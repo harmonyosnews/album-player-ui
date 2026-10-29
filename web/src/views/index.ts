@@ -390,7 +390,7 @@ function renderAbout(view: HTMLElement, s: AppState): void {
   page.append(el('section', { class: 'about-card' }, [
     el('div', { class: 'about-mark' }, [svgIcon('disc', 46)]),
     el('div', {}, [
-      el('h2', { text: 'APUI 0.1.0' }),
+      el('h2', { text: `APUI ${__APUI_VERSION__}` }),
       el('p', { class: 'hero-sub', text: '同源静态界面 · 不修改 aplayer 音频引擎' }),
       el('div', { class: 'about-badges' }, [badge('aplayer 2.19'), badge(s.online ? '在线' : '离线', s.online ? 'badge-ok' : 'badge-danger'), badge('7778')]),
     ]),

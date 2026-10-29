@@ -277,7 +277,7 @@ export function renderLayout(app: HTMLElement): LayoutRefs {
       { name: 'home', label: '首页', icon: 'home' },
       { name: 'albums', label: '专辑', icon: 'disc' },
       { name: 'radio', label: '电台', icon: 'radio' },
-      { name: 'settings', label: '设置', icon: 'settings' },
+      { name: 'browse', label: '文件', icon: 'folder' },
     ].map((item) => {
       const link = navLink(item, true);
       mobileLinks.push(link);

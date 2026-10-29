@@ -496,10 +496,12 @@ body.queue-open { overflow: hidden; }
   .hero-cover { border-radius: 12px; }
   .hero-meta { display: none; }
   .hero-actions .btn-secondary { display: none; }
-  .album-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .album-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
   .artist-grid { grid-template-columns: 1fr; }
-  .album-play { right: 12px; bottom: 60px; }
-  .album-name { font-size: 12.5px; }
+  .album-play { right: 8px; bottom: 52px; width: 34px; height: 34px; }
+  .album-card { padding: 8px; }
+  .album-name { font-size: 11.5px; }
+  .album-sub { font-size: 10px; }
   .album-sub { font-size: 10.5px; }
   .player-artist { display: none; }
   .mini-cover { width: 34px; height: 34px; }

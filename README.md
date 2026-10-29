@@ -2,10 +2,10 @@
 
 GitHub: <https://github.com/harmonyosnews/album-player-ui>
 
-**APUI 0.2.7 已实现并部署。** 这是一个与 aplayer 同源的静态 SPA，替换 `/opt/aplayer/aplayer.html` 后由 aplayer 在 **7778** 端口提供；不新增服务/端口，不改音频引擎。
+**APUI 0.2.8 已实现并部署。** 这是一个与 aplayer 同源的静态 SPA，替换 `/opt/aplayer/aplayer.html` 后由 aplayer 在 **7778** 端口提供；不新增服务/端口，不改音频引擎。
 
 - 构建：Vite 7 + TypeScript；JS 74.8 KB（gzip 23.4 KB）、CSS 34.6 KB（gzip 7.3 KB）。
-- 发布包：[release/apui-web-0.2.7.tar.gz](release/apui-web-0.2.7.tar.gz)（47 KB），sha256 `0ff3a844b71524015e75d825cdc0a65a502bb12f9c740310e99bb14e8ffc3605`（`sha256sum -c SHA256SUMS`）。
+- 发布包：[release/apui-web-0.2.8.tar.gz](release/apui-web-0.2.8.tar.gz)（47 KB），sha256 `d11732bcf50b56149952a29127a76e4993cc577cddd63929c484098cad77aa2c`（`sha256sum -c SHA256SUMS`）。
 - 已验证：`.133`（x86 构建/联调）、`.230`（ARM 冒烟）、`.137`（Gentooplayer 实机 45 张专辑曲库、当前队列、真实 FLAC 44.1/16/2 播放）。
 - 验收记录：[docs/06-实施与验收记录.md](docs/06-实施与验收记录.md)。
 
@@ -43,7 +43,7 @@ GitHub: <https://github.com/harmonyosnews/album-player-ui>
 
 | 文档 | 内容 |
 |---|---|
-| [APUI 使用手册（PDF）](docs/APUI-0.2.7-使用手册.pdf) | 面向使用者的安装、播放、当前队列、电台、播放列表、设置、移动端与排障手册 |
+| [APUI 使用手册（PDF，0.2.7）](docs/APUI-0.2.7-使用手册.pdf) | 面向使用者的安装、播放、当前队列、电台、播放列表、设置、移动端与排障手册；0.2.8 仅调整设置行距 |
 | [00-可行性分析.md](docs/00-可行性分析.md) | 现状、接口证据、方案比较、功能覆盖、风险、Go/No-Go |
 | [01-实施方案.md](docs/01-实施方案.md) | 架构、技术选型、WBS、阶段计划、构建/部署、测试、回滚 |
 | [02-项目书.md](docs/02-项目书.md) | 目标/范围、用户故事、需求规格、页面清单、组织/预算/风险/验收 |
@@ -73,14 +73,14 @@ cd web
 npm ci
 npm run build
 npm run check
-npm run package                     # 生成 release/apui-web-0.2.7.tar.gz
+npm run package                     # 生成 release/apui-web-0.2.8.tar.gz
 ```
 
 ### 安装（热替换，无需重启 aplayer）
 
 ```bash
-tar -xzf apui-web-0.2.7.tar.gz
-cd apui-web-0.2.7
+tar -xzf apui-web-0.2.8.tar.gz
+cd apui-web-0.2.8
 ./install.sh /opt/aplayer
 # 浏览器打开 http://<player>:7778/
 ```
@@ -161,6 +161,7 @@ cd apui-web-0.2.7
 
 | 版本 | 日期 | 变更 |
 |---|---|---|
+| 0.2.8 | 2026-10-29 | 压缩设置页条目行距（常规行约 43px、开关行约 31px）；三机部署 |
 | 0.2.7 | 2026-10-29 | 首页始终载入根目录曲库；播放栏新增当前播放队列（按专辑展开、保存为播放列表、Esc/取消关闭）；三机部署 |
 | 0.2.6 | 2026-10-29 | 电台直接进入/离开自动退出、独立电台数据；播放列表只显示 aplayer 列表；三机部署 |
 | 0.2.5 | 2026-10-29 | 移动端设置排布/开关行/控件全宽优化；顶部图标收紧 |

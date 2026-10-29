@@ -2,10 +2,10 @@
 
 GitHub: <https://github.com/harmonyosnews/album-player-ui>
 
-**APUI 0.2.11 已实现并部署。** 这是一个与 aplayer 同源的静态 SPA，替换 `/opt/aplayer/aplayer.html` 后由 aplayer 在 **7778** 端口提供；不新增服务/端口，不改音频引擎。
+**APUI 0.2.12 已实现并部署。** 这是一个与 aplayer 同源的静态 SPA，替换 `/opt/aplayer/aplayer.html` 后由 aplayer 在 **7778** 端口提供；不新增服务/端口，不改音频引擎。
 
-- 构建：Vite 7 + TypeScript；JS 75.0 KB（gzip 23.5 KB）、CSS 35.1 KB（gzip 7.3 KB）。
-- 发布包：[release/apui-web-0.2.11.tar.gz](release/apui-web-0.2.11.tar.gz)（47 KB），sha256 `77b9b5cb60fad0359c07e69958644cd0e7e51d9a125b1a96b7d01ccf89313acc`（`sha256sum -c SHA256SUMS`）。
+- 构建：Vite 7 + TypeScript；JS 75.5 KB（gzip 23.6 KB）、CSS 35.1 KB（gzip 7.3 KB）。
+- 发布包：[release/apui-web-0.2.12.tar.gz](release/apui-web-0.2.12.tar.gz)（47 KB），sha256 `c3ca9799d5d6743e4b1dd55c462544ebb1dba67b8e6271c6ac27b45213c852a6`（`sha256sum -c SHA256SUMS`）。
 - 已验证：`.133`（x86 构建/联调）、`.230`（ARM 冒烟）、`.137`（Gentooplayer 实机 45 张专辑曲库、当前队列、真实 FLAC 44.1/16/2 播放）。
 - 验收记录：[docs/06-实施与验收记录.md](docs/06-实施与验收记录.md)。
 
@@ -20,7 +20,7 @@ GitHub: <https://github.com/harmonyosnews/album-player-ui>
 - 左侧导航仅保留“发现/我的音乐”；设置入口在右上角齿轮；独立“关于”页已合并到设置 About。
 - 网络电台：点击左侧入口直接进入；离开自动恢复本地模式；电台数据与本地专辑完全分离。
 - 播放列表：仅显示 aplayer 保存的 `aplayer.dat`/`.ap2`，不使用文件浏览；文件浏览独立保留。
-- 设置：右上角齿轮进入；左侧无“系统/关于”；7 个主分页 + Decoder/DSP 子分页；参数中文化；底部单一操作行（导出/导入/保存），导入导出为完整配置。
+- 设置：右上角齿轮进入；左侧无“系统/关于”；7 个主分页 + 常规 5 个子标签 + Decoder/DSP 子分页；参数中文化；底部单一操作行（导出/导入/保存），导入导出为完整配置。
 - 离线提示、轮询退避、XSS 消毒、危险操作确认。
 
 **不做**：队列编辑/重排、历史、歌词、标签、智能推荐、多房间、UPnP 7779（aplayer 无对应接口或超范围）。
@@ -43,7 +43,7 @@ GitHub: <https://github.com/harmonyosnews/album-player-ui>
 
 | 文档 | 内容 |
 |---|---|
-| [APUI 使用手册（PDF，0.2.7）](docs/APUI-0.2.7-使用手册.pdf) | 面向使用者的安装、播放、当前队列、电台、播放列表、设置、移动端与排障手册；0.2.8–0.2.11 仅调整设置行距、分组字号、卡片布局与声卡应用按钮 |
+| [APUI 使用手册（PDF，0.2.7）](docs/APUI-0.2.7-使用手册.pdf) | 面向使用者的安装、播放、当前队列、电台、播放列表、设置、移动端与排障手册；0.2.8–0.2.12 仅调整设置行距、分组字号、卡片布局与常规子标签 |
 | [00-可行性分析.md](docs/00-可行性分析.md) | 现状、接口证据、方案比较、功能覆盖、风险、Go/No-Go |
 | [01-实施方案.md](docs/01-实施方案.md) | 架构、技术选型、WBS、阶段计划、构建/部署、测试、回滚 |
 | [02-项目书.md](docs/02-项目书.md) | 目标/范围、用户故事、需求规格、页面清单、组织/预算/风险/验收 |
@@ -73,14 +73,14 @@ cd web
 npm ci
 npm run build
 npm run check
-npm run package                     # 生成 release/apui-web-0.2.11.tar.gz
+npm run package                     # 生成 release/apui-web-0.2.12.tar.gz
 ```
 
 ### 安装（热替换，无需重启 aplayer）
 
 ```bash
-tar -xzf apui-web-0.2.11.tar.gz
-cd apui-web-0.2.11
+tar -xzf apui-web-0.2.12.tar.gz
+cd apui-web-0.2.12
 ./install.sh /opt/aplayer
 # 浏览器打开 http://<player>:7778/
 ```
@@ -161,6 +161,7 @@ cd apui-web-0.2.11
 
 | 版本 | 日期 | 变更 |
 |---|---|---|
+| 0.2.12 | 2026-10-29 | 常规页拆为 5 个子标签（媒体库与输出/播放/音量/媒体库选项/ALSA）；三机部署 |
 | 0.2.11 | 2026-10-29 | 设置页统一圆角卡片、内容左对齐；声卡页拆为“声卡/Scream 桥”两卡；三机部署 |
 | 0.2.10 | 2026-10-29 | 设置页分组标题 17px/700；声卡“应用”按钮移到选择框右侧；三机部署 |
 | 0.2.9 | 2026-10-29 | 设置页分组标题 15px（设置项 13.5px）；三机部署 |

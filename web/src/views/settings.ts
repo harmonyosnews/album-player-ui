@@ -5,7 +5,7 @@ import { checkbox, numberInput, select, settingRow, statRow, textInput } from '.
 import { el, svgIcon } from '../ui/dom';
 
 type MainTab = 'general' | 'decoder' | 'dsp' | 'system' | 'status' | 'card' | 'about';
-type SubTab = 'dsd' | 'dvda' | 'radio' | 'converter' | 'resampler' | 'convolver';
+type SubTab = 'media' | 'playback' | 'volume' | 'library' | 'alsa' | 'dsd' | 'dvda' | 'radio' | 'converter' | 'resampler' | 'convolver';
 type Kind = 'bool' | 'intbool' | 'int' | 'string' | 'select' | 'hw_index' | 'range10';
 
 interface FieldSpec {
@@ -37,6 +37,13 @@ const MAIN_TABS: Array<{ id: MainTab; label: string; icon: string }> = [
 ];
 
 const SUB_TABS: Partial<Record<MainTab, Array<{ id: SubTab; label: string }>>> = {
+  general: [
+    { id: 'media', label: '媒体库与输出' },
+    { id: 'playback', label: '播放' },
+    { id: 'volume', label: '音量' },
+    { id: 'library', label: '媒体库选项' },
+    { id: 'alsa', label: 'ALSA' },
+  ],
   decoder: [
     { id: 'dsd', label: 'DSD' },
     { id: 'dvda', label: 'DVD-A' },
@@ -123,27 +130,27 @@ const rateOptions = (except: number) => RATE_VALUES.filter((o) => Number(o.value
 
 const FIELDS: FieldSpec[] = [
   // 常规
-  { key: 'covers', label: '封面目录', kind: 'string', tab: 'general', group: '媒体库与输出' },
-  { key: 'root_folder', label: '根目录', kind: 'string', tab: 'general', group: '媒体库与输出', hint: 'aplayer 可访问的目录；不以 / 开头或结尾' },
-  { key: 'si_time', label: '曲间静音 (ms)', kind: 'int', tab: 'general', group: '媒体库与输出', min: 0, max: 60000 },
-  { key: 'mode_16bit', label: '16 bit 输出', kind: 'bool', tab: 'general', group: '媒体库与输出' },
-  { key: 'mode_24bit', label: '24 bit 输出', kind: 'bool', tab: 'general', group: '媒体库与输出' },
-  { key: 'di_mode', label: '播放模式', kind: 'select', tab: 'general', group: '播放', options: DI_MODE },
-  { key: 'std_buffer', label: '预载缓冲 (frames)', kind: 'int', tab: 'general', group: '播放', min: 16384, max: 8388608, hint: '16384–8388608' },
-  { key: 'gapless_mode', label: '无缝播放 (Gapless)', kind: 'bool', tab: 'general', group: '播放' },
-  { key: 'preload_mode', label: '完全预加载', kind: 'bool', tab: 'general', group: '播放' },
-  { key: 'volume_enabled', label: '启用音量控制', kind: 'bool', tab: 'general', group: '音量' },
-  { key: 'hw_volume', label: '硬件音量', kind: 'bool', tab: 'general', group: '音量' },
-  { key: 'hw_index', label: '硬件参数', kind: 'hw_index', tab: 'general', group: '音量' },
-  { key: 'auto_mode', label: '自动下一专辑', kind: 'bool', tab: 'general', group: '媒体库选项' },
-  { key: 'cue_mode', label: '使用 .cue', kind: 'bool', tab: 'general', group: '媒体库选项' },
-  { key: 'tags_mode', label: '使用标签', kind: 'bool', tab: 'general', group: '媒体库选项' },
-  { key: 'win1251', label: 'Windows-1251 标签', kind: 'intbool', tab: 'general', group: '媒体库选项' },
-  { key: 'pframes', label: 'ALSA 周期 (frames)', kind: 'int', tab: 'general', group: 'ALSA', min: 1, max: 1000000 },
-  { key: 'pmks', label: 'ALSA 周期 (µs)', kind: 'int', tab: 'general', group: 'ALSA', min: -1, max: 1000000 },
-  { key: 'bframes', label: 'ALSA 缓冲 (frames)', kind: 'int', tab: 'general', group: 'ALSA', min: 1, max: 10000000 },
-  { key: 'bmks', label: 'ALSA 缓冲 (µs)', kind: 'int', tab: 'general', group: 'ALSA', min: -1, max: 1000000 },
-  { key: 'mmap', label: '缓冲访问模式', kind: 'select', tab: 'general', group: 'ALSA', options: MMAP },
+  { key: 'covers', label: '封面目录', kind: 'string', tab: 'general', sub: 'media', group: '媒体库与输出' },
+  { key: 'root_folder', label: '根目录', kind: 'string', tab: 'general', sub: 'media', group: '媒体库与输出', hint: 'aplayer 可访问的目录；不以 / 开头或结尾' },
+  { key: 'si_time', label: '曲间静音 (ms)', kind: 'int', tab: 'general', sub: 'media', group: '媒体库与输出', min: 0, max: 60000 },
+  { key: 'mode_16bit', label: '16 bit 输出', kind: 'bool', tab: 'general', sub: 'media', group: '媒体库与输出' },
+  { key: 'mode_24bit', label: '24 bit 输出', kind: 'bool', tab: 'general', sub: 'media', group: '媒体库与输出' },
+  { key: 'di_mode', label: '播放模式', kind: 'select', tab: 'general', sub: 'playback', group: '播放', options: DI_MODE },
+  { key: 'std_buffer', label: '预载缓冲 (frames)', kind: 'int', tab: 'general', sub: 'playback', group: '播放', min: 16384, max: 8388608, hint: '16384–8388608' },
+  { key: 'gapless_mode', label: '无缝播放 (Gapless)', kind: 'bool', tab: 'general', sub: 'playback', group: '播放' },
+  { key: 'preload_mode', label: '完全预加载', kind: 'bool', tab: 'general', sub: 'playback', group: '播放' },
+  { key: 'volume_enabled', label: '启用音量控制', kind: 'bool', tab: 'general', sub: 'volume', group: '音量' },
+  { key: 'hw_volume', label: '硬件音量', kind: 'bool', tab: 'general', sub: 'volume', group: '音量' },
+  { key: 'hw_index', label: '硬件参数', kind: 'hw_index', tab: 'general', sub: 'volume', group: '音量' },
+  { key: 'auto_mode', label: '自动下一专辑', kind: 'bool', tab: 'general', sub: 'library', group: '媒体库选项' },
+  { key: 'cue_mode', label: '使用 .cue', kind: 'bool', tab: 'general', sub: 'library', group: '媒体库选项' },
+  { key: 'tags_mode', label: '使用标签', kind: 'bool', tab: 'general', sub: 'library', group: '媒体库选项' },
+  { key: 'win1251', label: 'Windows-1251 标签', kind: 'intbool', tab: 'general', sub: 'library', group: '媒体库选项' },
+  { key: 'pframes', label: 'ALSA 周期 (frames)', kind: 'int', tab: 'general', sub: 'alsa', group: 'ALSA', min: 1, max: 1000000 },
+  { key: 'pmks', label: 'ALSA 周期 (µs)', kind: 'int', tab: 'general', sub: 'alsa', group: 'ALSA', min: -1, max: 1000000 },
+  { key: 'bframes', label: 'ALSA 缓冲 (frames)', kind: 'int', tab: 'general', sub: 'alsa', group: 'ALSA', min: 1, max: 10000000 },
+  { key: 'bmks', label: 'ALSA 缓冲 (µs)', kind: 'int', tab: 'general', sub: 'alsa', group: 'ALSA', min: -1, max: 1000000 },
+  { key: 'mmap', label: '缓冲访问模式', kind: 'select', tab: 'general', sub: 'alsa', group: 'ALSA', options: MMAP },
 
   // 解码器 → DSD
   { key: 'dop_mode', label: 'DSD 输出模式', kind: 'select', tab: 'decoder', sub: 'dsd', options: DOP },
@@ -284,7 +291,7 @@ function renderFieldGroups(tab: MainTab, sub: SubTab | null, config: Config, con
   const form = el('div', { class: 'settings-form' });
   let group = '';
   for (const spec of fields) {
-    if (spec.group && spec.group !== group) {
+    if (tab !== 'general' && spec.group && spec.group !== group) {
       group = spec.group;
       form.append(el('div', { class: 'settings-group-title', text: group }));
     }

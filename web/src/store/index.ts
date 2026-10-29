@@ -524,13 +524,10 @@ class Store {
       if (this.state.radioCategory == null) return;
       indices = [this.state.radioCategory];
     } else {
-      // Small queues are expanded fully; large libraries load the current album
-      // first and let the user expand other albums on demand.
-      indices = Array.from({ length: total }, (_, i) => i);
-      if (indices.length > 12) {
-        const current = this.state.player?.Album;
-        indices = current != null && current >= 0 && current < total ? [current] : [];
-      }
+      // Match the official UI: only the currently playing album is loaded.
+      // Other albums stay as headers and load their tracks on demand.
+      const current = this.state.player?.Album;
+      indices = current != null && current >= 0 && current < total ? [current] : [];
     }
     if (!indices.length) return;
 

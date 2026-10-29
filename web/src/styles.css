@@ -451,7 +451,7 @@ body.queue-open { overflow: hidden; }
   .artist-grid { grid-template-columns: 1fr 1fr; }
   .player-bar { height: var(--player-h); padding: 0 12px; bottom: var(--mobile-nav-h); }
   .player-progress { grid-template-columns: 34px 1fr 34px; gap: 6px; }
-  .player-main { grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
+  .player-main { grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 8px; }
   .player-right { display: none; }
   .mini-cover { width: 46px; height: 46px; }
   .player-format { display: none; }
@@ -470,8 +470,10 @@ body.queue-open { overflow: hidden; }
   .page-header { align-items: flex-start; flex-direction: column; gap: 12px; }
   .page-header h1 { font-size: 28px; }
   .page-actions { width: 100%; }
-  .now-playing { padding: 7vh 10vw; }
-  .now-panel { grid-template-columns: 1fr; width: min(80vw, 360px); min-height: 84vh; align-content: center; gap: 24px; text-align: center; justify-items: center; }
+  .now-playing { padding: 7vh 5vw; }
+  .now-panel { grid-template-columns: 1fr; width: 100%; min-height: 84vh; align-content: center; gap: 24px; text-align: center; justify-items: center; }
+  .now-info { width: 100%; }
+  .now-progress { width: 100%; grid-template-columns: 32px 1fr 32px; gap: 6px; }
   .now-cover { width: min(62vw, 300px); }
   .now-info { align-items: center; }
   .now-controls { justify-content: center; gap: 8px; }
@@ -500,6 +502,8 @@ body.queue-open { overflow: hidden; }
   .album-name { font-size: 12.5px; }
   .album-sub { font-size: 10.5px; }
   .player-artist { display: none; }
+  .mini-cover { width: 34px; height: 34px; }
+  .player-left { gap: 8px; }
   .player-center { gap: 2px; }
   .control-btn { width: 30px; height: 30px; }
   .queue-btn { margin-left: 4px; }

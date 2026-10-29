@@ -491,6 +491,16 @@ function renderCard(config: Config, controls: Map<string, FieldControl>): HTMLEl
   const options = cardsOptions(config);
   const cardSelect = select(options[0]?.value || '0', options.length ? options : [{ value: '0', label: '未检测到声卡' }]);
   cardSelect.disabled = !options.length;
+  const applyCard = el('button', {
+    class: 'btn-primary card-apply',
+    type: 'button',
+    title: '应用所选声卡',
+    disabled: !options.length,
+    onclick: () => {
+      if (!confirm('切换声卡会停止当前播放并重新配置音频，继续？')) return;
+      void store.selectCard(Number(cardSelect.value));
+    },
+  }, [el('span', { text: '应用' })]);
   const form = renderFieldGroups('card', null, config, controls);
   return el('div', { class: 'settings-card-body' }, [
     el('section', { class: 'settings-section' }, [
@@ -499,12 +509,12 @@ function renderCard(config: Config, controls: Map<string, FieldControl>): HTMLEl
       el('div', { class: 'mono-block', text: asound.join('\n') || '未找到 asound.conf' }),
       el('p', { class: 'hint', text: '可用声卡：' }),
       el('div', { class: 'mono-block', text: cards.join('\n') || '—' }),
-      settingRow('选择声卡', cardSelect, '切换声卡会停止当前播放并重新配置 ALSA'),
-      el('div', { class: 'button-row' }, [
-        el('button', { class: 'btn-primary', type: 'button', disabled: !options.length, onclick: () => {
-          if (!confirm('切换声卡会停止当前播放并重新配置音频，继续？')) return;
-          void store.selectCard(Number(cardSelect.value));
-        } }, [el('span', { text: '应用声卡' })]),
+      el('div', { class: 'setting-row card-picker-row' }, [
+        el('span', { class: 'setting-label' }, [
+          el('span', { text: '选择声卡' }),
+          el('small', { text: '切换声卡会停止当前播放并重新配置 ALSA' }),
+        ]),
+        el('div', { class: 'select-action' }, [cardSelect, applyCard]),
       ]),
     ]),
     form,

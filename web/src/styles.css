@@ -384,6 +384,10 @@ body.queue-open { overflow: hidden; }
 .input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); background: #1d1d1d; }
 .input-number { width: 100%; }
 .select { min-width: 0; }
+.select-action { display: flex; align-items: center; gap: 8px; width: 100%; }
+.select-action .select { flex: 1 1 auto; min-width: 0; }
+.select-action .card-apply { flex: 0 0 auto; padding: 7px 14px; }
+.card-picker-row { grid-template-columns: minmax(190px, 260px) minmax(280px, 384px); }
 .checkbox { width: 18px; height: 18px; accent-color: var(--accent); }
 .save-bar { display: flex; justify-content: flex-end; padding: 6px 0 4px; }
 .settings-page { padding-bottom: 6px; }
@@ -525,8 +529,8 @@ body.queue-open { overflow: hidden; }
 .settings-header h1 { font-size: clamp(26px, 3vw, 36px); }
 .settings-subtabs { margin: 0 0 2px; }
 .settings-group-title {
-  width: 620px; max-width: 100%; margin: 12px auto 4px; color: var(--text-secondary); font-size: 15px;
-  letter-spacing: .2px; line-height: 1.5; font-weight: 650;
+  width: 620px; max-width: 100%; margin: 12px auto 4px; color: var(--text-secondary); font-size: 17px;
+  letter-spacing: .2px; line-height: 1.5; font-weight: 700;
 }
 .settings-form > .settings-group-title:first-child { margin-top: 0; }
 .range-wrap { display: flex; align-items: center; gap: 10px; }

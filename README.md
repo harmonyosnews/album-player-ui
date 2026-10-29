@@ -2,10 +2,10 @@
 
 GitHub: <https://github.com/harmonyosnews/album-player-ui>
 
-**APUI 0.2.0 已实现并部署。** 这是一个与 aplayer 同源的静态 SPA，替换 `/opt/aplayer/aplayer.html` 后由 aplayer 在 **7778** 端口提供；不新增服务/端口，不改音频引擎。
+**APUI 0.2.1 已实现并部署。** 这是一个与 aplayer 同源的静态 SPA，替换 `/opt/aplayer/aplayer.html` 后由 aplayer 在 **7778** 端口提供；不新增服务/端口，不改音频引擎。
 
-- 构建：Vite 7 + TypeScript；JS 66.8 KB（gzip 21.2 KB）、CSS 27.9 KB（gzip 6.1 KB）。
-- 发布包：[release/apui-web-0.2.0.tar.gz](release/apui-web-0.2.0.tar.gz)（44 KB），sha256 `38c579e44fef1c3191ad40db03f00951b9d5c27e8780745cff36b086a3e6e0a5`（`sha256sum -c SHA256SUMS`）。
+- 构建：Vite 7 + TypeScript；JS 65.4 KB（gzip 20.8 KB）、CSS 27.9 KB（gzip 6.1 KB）。
+- 发布包：[release/apui-web-0.2.1.tar.gz](release/apui-web-0.2.1.tar.gz)（44 KB），sha256 `d3946429c5d43199f3d7ea9073ee37dd8c6b28dbe3652e568aeb66e2c89e2f41`（`sha256sum -c SHA256SUMS`）。
 - 已验证：`.133`（x86 构建/联调）、`.230`（ARM 冒烟）、`.137`（Gentooplayer 实机真实 FLAC 44.1/16/2 播放）。
 - 验收记录：[docs/06-实施与验收记录.md](docs/06-实施与验收记录.md)。
 
@@ -15,9 +15,10 @@ GitHub: <https://github.com/harmonyosnews/album-player-ui>
 
 - 首页/正在播放、专辑/曲目/艺术家、全屏播放、底部播放条。
 - 搜索、浅色/深色主题、移动端底部导航。
+- 左侧导航仅保留“发现/我的音乐”；设置入口在右上角齿轮；独立“关于”页已合并到设置 About。
 - 网络电台：分类、电台、收藏、添加/删除。
 - 播放列表/文件浏览：目录展开/折叠、载入、保存当前列表。
-- 设置：General / Decoder（DSD/DVD-A/Radio）/ DSP（Converter/Resampler/Convolver）/ System / Status / Card / About，完整配置合并保存、导出/导入。
+- 设置：左侧导航已移除“系统”分栏；右上角齿轮进入设置；7 个主分页（常规/解码器/DSP/系统/状态/声卡/关于）+ Decoder/DSP 子分页；参数已中文化；原“关于”页合并进设置。
 - 离线提示、轮询退避、XSS 消毒、危险操作确认。
 
 **不做**：队列、历史、歌词、标签、智能推荐、多房间、UPnP 7779（aplayer 无对应接口或超范围）。
@@ -65,14 +66,14 @@ cd web
 npm ci
 npm run build
 npm run check
-npm run package                     # 生成 release/apui-web-0.2.0.tar.gz
+npm run package                     # 生成 release/apui-web-0.2.1.tar.gz
 ```
 
 ### 安装（热替换，无需重启 aplayer）
 
 ```bash
-tar -xzf apui-web-0.2.0.tar.gz
-cd apui-web-0.2.0
+tar -xzf apui-web-0.2.1.tar.gz
+cd apui-web-0.2.1
 ./install.sh /opt/aplayer
 # 浏览器打开 http://<player>:7778/
 ```
@@ -153,6 +154,7 @@ cd apui-web-0.2.0
 
 | 版本 | 日期 | 变更 |
 |---|---|---|
-| 0.2.0 | 2026-10-29 | 设置页按官方 7 主分页 + Decoder/DSP 子分页重构；补齐 General/DSD/DVD-A/Radio/DSP/System/Card 参数；发布包 0.2.0 |
+| 0.2.1 | 2026-10-29 | 左侧移除系统分栏；右上角新增设置入口；关于合并进设置；设置参数中文化；发布包 0.2.1 |
+| 0.2.0 | 2026-10-29 | 设置页按官方 7 主分页 + Decoder/DSP 子分页重构；补齐 General/DSD/DVD-A/Radio/DSP/System/Card 参数 |
 | 0.1.0 | 2026-10-29 | 首个可部署 MVP；三机部署；`.137` 实机播放通过；发布包/文档 |
 | v1.0 文档 | 2026-10-29 | 可行性/方案/项目书/开发手册/接口/证据 |

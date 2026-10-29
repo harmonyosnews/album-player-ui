@@ -27,46 +27,46 @@ interface FieldControl {
 }
 
 const MAIN_TABS: Array<{ id: MainTab; label: string; icon: string }> = [
-  { id: 'general', label: 'General', icon: 'sliders' },
-  { id: 'decoder', label: 'Decoder', icon: 'disc' },
+  { id: 'general', label: '常规', icon: 'sliders' },
+  { id: 'decoder', label: '解码器', icon: 'disc' },
   { id: 'dsp', label: 'DSP', icon: 'wave' },
-  { id: 'system', label: 'System', icon: 'settings' },
-  { id: 'status', label: 'Status', icon: 'info' },
-  { id: 'card', label: 'Card', icon: 'volume' },
-  { id: 'about', label: 'About', icon: 'info' },
+  { id: 'system', label: '系统', icon: 'settings' },
+  { id: 'status', label: '状态', icon: 'info' },
+  { id: 'card', label: '声卡', icon: 'volume' },
+  { id: 'about', label: '关于', icon: 'info' },
 ];
 
 const SUB_TABS: Partial<Record<MainTab, Array<{ id: SubTab; label: string }>>> = {
   decoder: [
     { id: 'dsd', label: 'DSD' },
     { id: 'dvda', label: 'DVD-A' },
-    { id: 'radio', label: 'Radio' },
+    { id: 'radio', label: '电台' },
   ],
   dsp: [
-    { id: 'converter', label: 'Converter' },
-    { id: 'resampler', label: 'Resampler' },
-    { id: 'convolver', label: 'Convolver' },
+    { id: 'converter', label: '转换器' },
+    { id: 'resampler', label: '重采样器' },
+    { id: 'convolver', label: '卷积器' },
   ],
 };
 
 const DI_MODE = [
-  { value: '0', label: 'Standard' },
-  { value: '1', label: 'Direct Input' },
-  { value: '2', label: 'Full Memory' },
+  { value: '0', label: '标准' },
+  { value: '1', label: '直接输入' },
+  { value: '2', label: '全内存' },
 ];
 const MMAP = [
-  { value: '1', label: 'MMAP mode' },
-  { value: '0', label: 'RW mode' },
+  { value: '1', label: 'MMAP 模式' },
+  { value: '0', label: 'RW 模式' },
 ];
 const AFFINITY = [
-  { value: '0', label: 'Without selecting cores' },
-  { value: '1', label: 'Single Core' },
-  { value: '2', label: 'Double Core' },
+  { value: '0', label: '不绑定核心' },
+  { value: '1', label: '单核' },
+  { value: '2', label: '双核' },
 ];
 const DOP = [
   { value: '0', label: 'PCM' },
   { value: '1', label: 'DoP' },
-  { value: '2', label: 'Native DSD' },
+  { value: '2', label: '原生 DSD' },
 ];
 const DSD_LIMIT = [
   { value: '0', label: 'DSD64' },
@@ -82,18 +82,18 @@ const PCM_FREQ = [
 ];
 const DSD_VOL = [0, 1, 2, 3, 4, 5, 6].map((v) => ({ value: String(v), label: `+${v}dB` }));
 const DSD_PCM = [
-  { value: '0', label: 'Multistage' },
-  { value: '1', label: 'Direct' },
-  { value: '2', label: 'FIR 30KHz' },
-  { value: '3', label: 'FIR 40KHz' },
-  { value: '4', label: 'FIR 50KHz' },
-  { value: '5', label: 'FIR 60KHz' },
+  { value: '0', label: '多级' },
+  { value: '1', label: '直接' },
+  { value: '2', label: 'FIR 30kHz' },
+  { value: '3', label: 'FIR 40kHz' },
+  { value: '4', label: 'FIR 50kHz' },
+  { value: '5', label: 'FIR 60kHz' },
   { value: '6', label: 'FIR S-Audio Systems' },
 ];
 const AREA = [
-  { value: '0', label: 'None' },
-  { value: '1', label: 'Stereo' },
-  { value: '2', label: 'Multichannel' },
+  { value: '0', label: '无' },
+  { value: '1', label: '立体声' },
+  { value: '2', label: '多声道' },
 ];
 const DSD_FILTER = [
   ['0', 'clans-4'], ['1', 'clans-5'], ['2', 'clans-6'], ['3', 'clans-7'], ['4', 'clans-8'],
@@ -101,7 +101,7 @@ const DSD_FILTER = [
 ].map(([value, label]) => ({ value, label }));
 const DSD_OUTPUT = [
   { value: '0', label: 'DoP' },
-  { value: '1', label: 'Native' },
+  { value: '1', label: '原生' },
 ];
 const DSD_RATE = [
   { value: '0', label: 'DSD64' },
@@ -113,111 +113,118 @@ const DSD_LEVEL = [
   { value: '1', label: '-6dB' },
 ];
 const SOXR_PHASE = [
-  { value: '0', label: 'Minimum phase' },
-  { value: '1', label: 'Intermediate phase' },
-  { value: '2', label: 'Linear phase' },
+  { value: '0', label: '最小相位' },
+  { value: '1', label: '中间相位' },
+  { value: '2', label: '线性相位' },
 ];
-const RATE_LABELS = ['original', '44.1 KHz', '48 KHz', '88.2 KHz', '96 KHz', '176.4 KHz', '192 KHz', '352.8 KHz', '384 KHz', '705.6 KHz', '768 KHz'];
+const RATE_LABELS = ['原始', '44.1 kHz', '48 kHz', '88.2 kHz', '96 kHz', '176.4 kHz', '192 kHz', '352.8 kHz', '384 kHz', '705.6 kHz', '768 kHz'];
 const RATE_VALUES = RATE_LABELS.map((label, value) => ({ value: String(value), label }));
 const rateOptions = (except: number) => RATE_VALUES.filter((o) => Number(o.value) !== except);
 
 const FIELDS: FieldSpec[] = [
-  // General
-  { key: 'covers', label: 'Cover folders', kind: 'string', tab: 'general', group: 'Library & Output' },
-  { key: 'root_folder', label: 'Root folder', kind: 'string', tab: 'general', group: 'Library & Output', hint: 'aplayer 可访问的目录；不以 / 开头或结尾' },
-  { key: 'si_time', label: 'Play silence (ms)', kind: 'int', tab: 'general', group: 'Library & Output', min: 0, max: 60000 },
-  { key: 'mode_16bit', label: '16 bit output', kind: 'bool', tab: 'general', group: 'Library & Output' },
-  { key: 'mode_24bit', label: '24 bit output', kind: 'bool', tab: 'general', group: 'Library & Output' },
-  { key: 'di_mode', label: 'Playback mode', kind: 'select', tab: 'general', group: 'Playback', options: DI_MODE },
-  { key: 'std_buffer', label: 'Preload buffer (frames)', kind: 'int', tab: 'general', group: 'Playback', min: 16384, max: 8388608, hint: '16384–8388608' },
-  { key: 'gapless_mode', label: 'Gapless mode', kind: 'bool', tab: 'general', group: 'Playback' },
-  { key: 'preload_mode', label: 'Full preloading', kind: 'bool', tab: 'general', group: 'Playback' },
-  { key: 'volume_enabled', label: 'Enable volume control', kind: 'bool', tab: 'general', group: 'Volume' },
-  { key: 'hw_volume', label: 'HW volume', kind: 'bool', tab: 'general', group: 'Volume' },
-  { key: 'hw_index', label: 'HW parameter', kind: 'hw_index', tab: 'general', group: 'Volume' },
-  { key: 'auto_mode', label: 'Auto move to next album', kind: 'bool', tab: 'general', group: 'Library Options' },
-  { key: 'cue_mode', label: 'Use .cue', kind: 'bool', tab: 'general', group: 'Library Options' },
-  { key: 'tags_mode', label: 'Use tags', kind: 'bool', tab: 'general', group: 'Library Options' },
-  { key: 'win1251', label: 'Windows-1251 tags', kind: 'intbool', tab: 'general', group: 'Library Options' },
-  { key: 'pframes', label: 'ALSA Period (frames)', kind: 'int', tab: 'general', group: 'ALSA', min: 1, max: 1000000 },
-  { key: 'pmks', label: 'ALSA Period (µs)', kind: 'int', tab: 'general', group: 'ALSA', min: -1, max: 1000000 },
-  { key: 'bframes', label: 'ALSA Buffer (frames)', kind: 'int', tab: 'general', group: 'ALSA', min: 1, max: 10000000 },
-  { key: 'bmks', label: 'ALSA Buffer (µs)', kind: 'int', tab: 'general', group: 'ALSA', min: -1, max: 1000000 },
-  { key: 'mmap', label: 'Buffer Access', kind: 'select', tab: 'general', group: 'ALSA', options: MMAP },
+  // 常规
+  { key: 'covers', label: '封面目录', kind: 'string', tab: 'general', group: '媒体库与输出' },
+  { key: 'root_folder', label: '根目录', kind: 'string', tab: 'general', group: '媒体库与输出', hint: 'aplayer 可访问的目录；不以 / 开头或结尾' },
+  { key: 'si_time', label: '曲间静音 (ms)', kind: 'int', tab: 'general', group: '媒体库与输出', min: 0, max: 60000 },
+  { key: 'mode_16bit', label: '16 bit 输出', kind: 'bool', tab: 'general', group: '媒体库与输出' },
+  { key: 'mode_24bit', label: '24 bit 输出', kind: 'bool', tab: 'general', group: '媒体库与输出' },
+  { key: 'di_mode', label: '播放模式', kind: 'select', tab: 'general', group: '播放', options: DI_MODE },
+  { key: 'std_buffer', label: '预载缓冲 (frames)', kind: 'int', tab: 'general', group: '播放', min: 16384, max: 8388608, hint: '16384–8388608' },
+  { key: 'gapless_mode', label: '无缝播放 (Gapless)', kind: 'bool', tab: 'general', group: '播放' },
+  { key: 'preload_mode', label: '完全预加载', kind: 'bool', tab: 'general', group: '播放' },
+  { key: 'volume_enabled', label: '启用音量控制', kind: 'bool', tab: 'general', group: '音量' },
+  { key: 'hw_volume', label: '硬件音量', kind: 'bool', tab: 'general', group: '音量' },
+  { key: 'hw_index', label: '硬件参数', kind: 'hw_index', tab: 'general', group: '音量' },
+  { key: 'auto_mode', label: '自动下一专辑', kind: 'bool', tab: 'general', group: '媒体库选项' },
+  { key: 'cue_mode', label: '使用 .cue', kind: 'bool', tab: 'general', group: '媒体库选项' },
+  { key: 'tags_mode', label: '使用标签', kind: 'bool', tab: 'general', group: '媒体库选项' },
+  { key: 'win1251', label: 'Windows-1251 标签', kind: 'intbool', tab: 'general', group: '媒体库选项' },
+  { key: 'pframes', label: 'ALSA 周期 (frames)', kind: 'int', tab: 'general', group: 'ALSA', min: 1, max: 1000000 },
+  { key: 'pmks', label: 'ALSA 周期 (µs)', kind: 'int', tab: 'general', group: 'ALSA', min: -1, max: 1000000 },
+  { key: 'bframes', label: 'ALSA 缓冲 (frames)', kind: 'int', tab: 'general', group: 'ALSA', min: 1, max: 10000000 },
+  { key: 'bmks', label: 'ALSA 缓冲 (µs)', kind: 'int', tab: 'general', group: 'ALSA', min: -1, max: 1000000 },
+  { key: 'mmap', label: '缓冲访问模式', kind: 'select', tab: 'general', group: 'ALSA', options: MMAP },
 
-  // Decoder → DSD
-  { key: 'dop_mode', label: 'DSD output mode', kind: 'select', tab: 'decoder', sub: 'dsd', options: DOP },
-  { key: 'dsd_limit', label: 'DSD Mode limit', kind: 'select', tab: 'decoder', sub: 'dsd', options: DSD_LIMIT },
-  { key: 'pcm_freq', label: 'PCM samplerate', kind: 'select', tab: 'decoder', sub: 'dsd', options: PCM_FREQ },
-  { key: 'dsd_vol', label: 'PCM Volume', kind: 'select', tab: 'decoder', sub: 'dsd', options: DSD_VOL },
-  { key: 'pcm_mult', label: 'PCM for multichannel', kind: 'bool', tab: 'decoder', sub: 'dsd' },
-  { key: 'sacd_full', label: 'Full disk mode', kind: 'bool', tab: 'decoder', sub: 'dsd' },
-  { key: 'dsd_pcm', label: 'DSD to PCM converter', kind: 'select', tab: 'decoder', sub: 'dsd', options: DSD_PCM },
-  { key: 'dsd_area', label: 'Preferable Area', kind: 'select', tab: 'decoder', sub: 'dsd', options: AREA },
+  // 解码器 → DSD
+  { key: 'dop_mode', label: 'DSD 输出模式', kind: 'select', tab: 'decoder', sub: 'dsd', options: DOP },
+  { key: 'dsd_limit', label: 'DSD 模式上限', kind: 'select', tab: 'decoder', sub: 'dsd', options: DSD_LIMIT },
+  { key: 'pcm_freq', label: 'PCM 采样率', kind: 'select', tab: 'decoder', sub: 'dsd', options: PCM_FREQ },
+  { key: 'dsd_vol', label: 'PCM 音量', kind: 'select', tab: 'decoder', sub: 'dsd', options: DSD_VOL },
+  { key: 'pcm_mult', label: '多声道 PCM', kind: 'bool', tab: 'decoder', sub: 'dsd' },
+  { key: 'sacd_full', label: '整盘模式', kind: 'bool', tab: 'decoder', sub: 'dsd' },
+  { key: 'dsd_pcm', label: 'DSD→PCM 转换器', kind: 'select', tab: 'decoder', sub: 'dsd', options: DSD_PCM },
+  { key: 'dsd_area', label: '优先区域', kind: 'select', tab: 'decoder', sub: 'dsd', options: AREA },
 
-  // Decoder → DVD-A
-  { key: 'dvda_nomix', label: "Don't load stereo downmixes", kind: 'bool', tab: 'decoder', sub: 'dvda' },
-  { key: 'dvda_area', label: 'Preferable Mode', kind: 'select', tab: 'decoder', sub: 'dvda', options: AREA },
+  // 解码器 → DVD-A
+  { key: 'dvda_nomix', label: "不加载立体声下混", kind: 'bool', tab: 'decoder', sub: 'dvda' },
+  { key: 'dvda_area', label: '优先模式', kind: 'select', tab: 'decoder', sub: 'dvda', options: AREA },
 
-  // Decoder → Radio
-  { key: 'radio_pict', label: 'Load pictures', kind: 'bool', tab: 'decoder', sub: 'radio' },
-  { key: 'num_pics', label: 'Pictures count (1–10)', kind: 'int', tab: 'decoder', sub: 'radio', min: 1, max: 10 },
-  { key: 'api_flag', label: 'query with', kind: 'intbool', tab: 'decoder', sub: 'radio' },
-  { key: 'api_add', label: 'Query text', kind: 'string', tab: 'decoder', sub: 'radio', hint: '例如 album cover' },
-  { key: 'radio_auto', label: 'Autoplay', kind: 'intbool', tab: 'decoder', sub: 'radio' },
-  { key: 'radio_proxy', label: 'Use proxy server', kind: 'bool', tab: 'decoder', sub: 'radio' },
-  { key: 'radio_proxy2', label: 'Proxy address', kind: 'string', tab: 'decoder', sub: 'radio', hint: '[user:pass@]server:port' },
-  { key: 'radio_ua', label: 'Custom User-Agent', kind: 'bool', tab: 'decoder', sub: 'radio' },
+  // 解码器 → 电台
+  { key: 'radio_pict', label: '加载图片', kind: 'bool', tab: 'decoder', sub: 'radio' },
+  { key: 'num_pics', label: '图片数量 (1–10)', kind: 'int', tab: 'decoder', sub: 'radio', min: 1, max: 10 },
+  { key: 'api_flag', label: '查询封面', kind: 'intbool', tab: 'decoder', sub: 'radio' },
+  { key: 'api_add', label: '查询文本', kind: 'string', tab: 'decoder', sub: 'radio', hint: '例如 album cover' },
+  { key: 'radio_auto', label: '自动播放', kind: 'intbool', tab: 'decoder', sub: 'radio' },
+  { key: 'radio_proxy', label: '使用代理服务器', kind: 'bool', tab: 'decoder', sub: 'radio' },
+  { key: 'radio_proxy2', label: '代理地址', kind: 'string', tab: 'decoder', sub: 'radio', hint: '[user:pass@]server:port' },
+  { key: 'radio_ua', label: '自定义 User-Agent', kind: 'bool', tab: 'decoder', sub: 'radio' },
   { key: 'radio_user', label: 'User-Agent', kind: 'string', tab: 'decoder', sub: 'radio' },
 
-  // DSP → Converter
-  { key: 'multi_mode', label: 'Convert multichannel to stereo', kind: 'bool', tab: 'dsp', sub: 'converter' },
-  { key: 'swap_mode', label: 'Swap channels (stereo)', kind: 'bool', tab: 'dsp', sub: 'converter' },
-  { key: 'phase_mode', label: 'Invert phase', kind: 'bool', tab: 'dsp', sub: 'converter' },
-  { key: 'enable_dsd', label: 'Convert PCM to DSD (Mans Rullgard)', kind: 'intbool', tab: 'dsp', sub: 'converter' },
-  { key: 'filter', label: 'Filter', kind: 'select', tab: 'dsp', sub: 'converter', options: DSD_FILTER },
-  { key: 'output', label: 'Output', kind: 'select', tab: 'dsp', sub: 'converter', options: DSD_OUTPUT },
-  { key: 'rate', label: 'Rate', kind: 'select', tab: 'dsp', sub: 'converter', options: DSD_RATE },
-  { key: 'level', label: 'Level', kind: 'select', tab: 'dsp', sub: 'converter', options: DSD_LEVEL },
-  { key: 'multithread', label: 'Multi-thread mode', kind: 'intbool', tab: 'dsp', sub: 'converter' },
+  // DSP → 转换器
+  { key: 'multi_mode', label: '多声道转立体声', kind: 'bool', tab: 'dsp', sub: 'converter' },
+  { key: 'swap_mode', label: '声道交换（立体声）', kind: 'bool', tab: 'dsp', sub: 'converter' },
+  { key: 'phase_mode', label: '反相', kind: 'bool', tab: 'dsp', sub: 'converter' },
+  { key: 'enable_dsd', label: 'PCM 转 DSD（Mans Rullgard）', kind: 'intbool', tab: 'dsp', sub: 'converter' },
+  { key: 'filter', label: '滤波器', kind: 'select', tab: 'dsp', sub: 'converter', options: DSD_FILTER },
+  { key: 'output', label: '输出', kind: 'select', tab: 'dsp', sub: 'converter', options: DSD_OUTPUT },
+  { key: 'rate', label: '速率', kind: 'select', tab: 'dsp', sub: 'converter', options: DSD_RATE },
+  { key: 'level', label: '电平', kind: 'select', tab: 'dsp', sub: 'converter', options: DSD_LEVEL },
+  { key: 'multithread', label: '多线程模式', kind: 'intbool', tab: 'dsp', sub: 'converter' },
 
-  // DSP → Resampler
-  { key: 'res_bf44', label: '< 44 KHz', kind: 'select', tab: 'dsp', sub: 'resampler', options: RATE_VALUES },
-  { key: 'res44', label: '44.1 KHz', kind: 'select', tab: 'dsp', sub: 'resampler', options: rateOptions(1) },
-  { key: 'res48', label: '48 KHz', kind: 'select', tab: 'dsp', sub: 'resampler', options: rateOptions(2) },
-  { key: 'res88', label: '88.2 KHz', kind: 'select', tab: 'dsp', sub: 'resampler', options: rateOptions(3) },
-  { key: 'res96', label: '96 KHz', kind: 'select', tab: 'dsp', sub: 'resampler', options: rateOptions(4) },
-  { key: 'res176', label: '176.4 KHz', kind: 'select', tab: 'dsp', sub: 'resampler', options: rateOptions(5) },
-  { key: 'res192', label: '192 KHz', kind: 'select', tab: 'dsp', sub: 'resampler', options: rateOptions(6) },
-  { key: 'res352', label: '352.8 KHz', kind: 'select', tab: 'dsp', sub: 'resampler', options: rateOptions(7) },
-  { key: 'res384', label: '384 KHz', kind: 'select', tab: 'dsp', sub: 'resampler', options: rateOptions(8) },
-  { key: 'soxr_phase', label: 'Phase', kind: 'select', tab: 'dsp', sub: 'resampler', options: SOXR_PHASE },
-  { key: 'soxr_filter', label: 'Steep filter (99%)', kind: 'bool', tab: 'dsp', sub: 'resampler' },
-  { key: 'soxr_quality', label: 'Ultra High Quality', kind: 'bool', tab: 'dsp', sub: 'resampler' },
-  { key: 'att', label: 'Attenuate, dB -', kind: 'int', tab: 'dsp', sub: 'resampler', min: -120, max: 0 },
+  // DSP → 重采样器
+  { key: 'res_bf44', label: '< 44 kHz', kind: 'select', tab: 'dsp', sub: 'resampler', options: RATE_VALUES },
+  { key: 'res44', label: '44.1 kHz', kind: 'select', tab: 'dsp', sub: 'resampler', options: rateOptions(1) },
+  { key: 'res48', label: '48 kHz', kind: 'select', tab: 'dsp', sub: 'resampler', options: rateOptions(2) },
+  { key: 'res88', label: '88.2 kHz', kind: 'select', tab: 'dsp', sub: 'resampler', options: rateOptions(3) },
+  { key: 'res96', label: '96 kHz', kind: 'select', tab: 'dsp', sub: 'resampler', options: rateOptions(4) },
+  { key: 'res176', label: '176.4 kHz', kind: 'select', tab: 'dsp', sub: 'resampler', options: rateOptions(5) },
+  { key: 'res192', label: '192 kHz', kind: 'select', tab: 'dsp', sub: 'resampler', options: rateOptions(6) },
+  { key: 'res352', label: '352.8 kHz', kind: 'select', tab: 'dsp', sub: 'resampler', options: rateOptions(7) },
+  { key: 'res384', label: '384 kHz', kind: 'select', tab: 'dsp', sub: 'resampler', options: rateOptions(8) },
+  { key: 'soxr_phase', label: '相位', kind: 'select', tab: 'dsp', sub: 'resampler', options: SOXR_PHASE },
+  { key: 'soxr_filter', label: '陡峭滤波器 (99%)', kind: 'bool', tab: 'dsp', sub: 'resampler' },
+  { key: 'soxr_quality', label: '超高精度', kind: 'bool', tab: 'dsp', sub: 'resampler' },
+  { key: 'att', label: '衰减 (dB)', kind: 'int', tab: 'dsp', sub: 'resampler', min: -120, max: 0 },
 
-  // DSP → Convolver
-  { key: 'use_conv', label: 'Enable convolver', kind: 'bool', tab: 'dsp', sub: 'convolver' },
-  { key: 'conv_filter', label: 'Select filter', kind: 'int', tab: 'dsp', sub: 'convolver', min: 0, max: 999 },
-  { key: 'conv_db', label: 'Attenuation', kind: 'range10', tab: 'dsp', sub: 'convolver', min: -60, max: 60 },
+  // DSP → 卷积器
+  { key: 'use_conv', label: '启用卷积', kind: 'bool', tab: 'dsp', sub: 'convolver' },
+  { key: 'conv_filter', label: '选择滤波器', kind: 'int', tab: 'dsp', sub: 'convolver', min: 0, max: 999 },
+  { key: 'conv_db', label: '衰减', kind: 'range10', tab: 'dsp', sub: 'convolver', min: -60, max: 60 },
 
-  // System
-  { key: 'priority', label: 'Process Priority (0–99)', kind: 'int', tab: 'system', min: 0, max: 99 },
-  { key: 'nice', label: 'Process Nice (-20–19)', kind: 'int', tab: 'system', min: -20, max: 19 },
-  { key: 'lock_memory', label: 'Lock memory', kind: 'bool', tab: 'system' },
-  { key: 'affinity_mode', label: 'Selecting cores', kind: 'select', tab: 'system', options: AFFINITY },
+  // 系统
+  { key: 'priority', label: '进程优先级 (0–99)', kind: 'int', tab: 'system', min: 0, max: 99 },
+  { key: 'nice', label: '进程 Nice (-20–19)', kind: 'int', tab: 'system', min: -20, max: 19 },
+  { key: 'lock_memory', label: '锁定内存', kind: 'bool', tab: 'system' },
+  { key: 'affinity_mode', label: 'CPU 核心选择', kind: 'select', tab: 'system', options: AFFINITY },
 
-  // Card → Scream
-  { key: 'ch_scr', label: 'Scream', kind: 'bool', tab: 'card' },
+  // 声卡 → Scream 投屏
+  { key: 'ch_scr', label: 'Scream 投屏', kind: 'bool', tab: 'card' },
   { key: 'ch_tcp', label: 'TCP', kind: 'bool', tab: 'card' },
-  { key: 'ip_scr', label: 'Receiver IP', kind: 'string', tab: 'card' },
-  { key: 'pt_scr', label: 'Port', kind: 'int', tab: 'card', min: 1, max: 65535 },
+  { key: 'ip_scr', label: '接收端 IP', kind: 'string', tab: 'card' },
+  { key: 'pt_scr', label: '端口', kind: 'int', tab: 'card', min: 1, max: 65535 },
 ];
 
 const MAIN_KEY = 'apui.settings.tab';
 const SUB_KEY = (tab: string) => `apui.settings.sub.${tab}`;
 let activeTab: MainTab = (sessionStorage.getItem(MAIN_KEY) as MainTab) || 'general';
 let activeSub: SubTab = (sessionStorage.getItem(SUB_KEY(activeTab)) as SubTab) || firstSub(activeTab);
+
+export function setSettingsTab(tab: MainTab): void {
+  activeTab = tab;
+  activeSub = firstSub(tab);
+  sessionStorage.setItem(MAIN_KEY, activeTab);
+  sessionStorage.setItem(SUB_KEY(activeTab), activeSub);
+}
 
 function firstSub(tab: MainTab): SubTab {
   return (SUB_TABS[tab]?.[0]?.id || 'dsd') as SubTab;
@@ -298,7 +305,7 @@ function cardsOptions(config: Config): Array<{ value: string; label: string }> {
 }
 
 function yesNo(value: unknown): string {
-  return value === 1 || value === true ? 'yes' : 'no';
+  return value === 1 || value === true ? '是' : '否';
 }
 
 function statValue(config: Config, key: string): string {
@@ -343,7 +350,7 @@ export function renderSettings(view: HTMLElement, s: AppState): void {
   const header = el('div', { class: 'page-header settings-header' }, [
     el('div', {}, [
       el('h1', { text: '设置' }),
-      el('p', { class: 'subtitle', text: 'Album Player settings · 修改会写入 aplayer 配置；保存前做完整合并与校验' }),
+      el('p', { class: 'subtitle', text: 'Album Player 设置 · 修改会写入 aplayer 配置；保存前做完整合并与校验' }),
     ]),
     el('div', { class: 'page-actions' }, [
       el('button', { class: 'btn-secondary', type: 'button', onclick: () => store.exportConfig() }, [svgIcon('external', 16), el('span', { text: '导出配置' })]),
@@ -419,9 +426,9 @@ export function renderSettings(view: HTMLElement, s: AppState): void {
 
 function renderRadioCatalog(config: Config): HTMLElement {
   return el('section', { class: 'settings-section' }, [
-    el('h3', { text: 'Catalog' }),
+    el('h3', { text: '电台目录' }),
     el('p', { class: 'hint' }, [
-      el('span', { text: 'Catalog Date: local ' }),
+      el('span', { text: '目录日期：本地 ' }),
       (() => {
         const local = el('span', { text: '…' });
         const url = import.meta.env.DEV ? '/ap/date.html' : '/date.html';
@@ -431,15 +438,15 @@ function renderRadioCatalog(config: Config): HTMLElement {
           .catch(() => { local.textContent = '—'; });
         return local;
       })(),
-      el('span', { text: ` / server ${statValue(config, 'catdate')}` }),
+      el('span', { text: ` / 服务器 ${statValue(config, 'catdate')}` }),
     ]),
     el('div', { class: 'button-row' }, [
       el('button', { class: 'btn-secondary', type: 'button', onclick: () => {
-        if (confirm('Update Catalog 会联网并修改 Radio 目录，继续？')) void store.updateCatalog(false);
-      } }, [el('span', { text: 'Update Catalog' })]),
+        if (confirm('更新目录会联网并修改电台目录，继续？')) void store.updateCatalog(false);
+      } }, [el('span', { text: '更新目录' })]),
       el('button', { class: 'btn-danger', type: 'button', onclick: () => {
-        if (confirm('Replace Catalog 会覆盖本地 Radio 目录，继续？')) void store.updateCatalog(true);
-      } }, [el('span', { text: 'Replace Catalog' })]),
+        if (confirm('替换目录会覆盖本地电台目录，继续？')) void store.updateCatalog(true);
+      } }, [el('span', { text: '替换目录' })]),
     ]),
   ]);
 }
@@ -448,10 +455,10 @@ function renderConvolverInfo(config: Config): HTMLElement {
   const list = statValue(config, 'conv_list');
   const desc = statValue(config, 'conv_desc');
   return el('section', { class: 'settings-section' }, [
-    el('h3', { text: 'Convolver' }),
-    el('p', { class: 'hint', text: 'Filters（来自 GetConfig.conv_list）' }),
+    el('h3', { text: '卷积器' }),
+    el('p', { class: 'hint', text: '滤波器列表（来自 GetConfig.conv_list）' }),
     el('div', { class: 'mono-block', text: list }),
-    el('p', { class: 'hint', text: 'Description' }),
+    el('p', { class: 'hint', text: '描述' }),
     el('div', { class: 'mono-block', text: desc }),
   ]);
 }
@@ -459,21 +466,21 @@ function renderConvolverInfo(config: Config): HTMLElement {
 function renderStatus(config: Config, s: AppState): HTMLElement {
   const p = s.player;
   return el('section', { class: 'settings-section' }, [
-    el('h3', { text: 'Status' }),
-    statRow('Root User', yesNo(config.stat_root)),
-    statRow('Used Cores', statValue(config, 'stat_cpus')),
-    statRow('Process Priority', statValue(config, 'stat_prio')),
-    statRow('Process Nice', statValue(config, 'stat_nice')),
-    statRow('Supports 16 bit output', yesNo(config.stat_16bit)),
-    statRow('Supports 24 bit output', yesNo(config.stat_24bit)),
-    statRow('Supports 32 bit output', yesNo(config.stat_32bit)),
-    statRow('Supports Native DSD', config.stat_dsd32be === 1 || config.stat_dsd32le === 1 ? 'yes' : 'no'),
-    statRow('Playing', p?.Playing ? 'yes' : 'no'),
-    statRow('Playing file', p?.PlayingName || statValue(config, 'stat_file')),
-    statRow('Source', statValue(config, 'stat_source')),
-    statRow('Output', statValue(config, 'stat_output')),
-    statRow('ALSA Period', statValue(config, 'stat_period_size')),
-    statRow('ALSA Buffer', statValue(config, 'stat_buffer_size')),
+    el('h3', { text: '状态' }),
+    statRow('Root 用户', yesNo(config.stat_root)),
+    statRow('已用核心', statValue(config, 'stat_cpus')),
+    statRow('进程优先级', statValue(config, 'stat_prio')),
+    statRow('进程 Nice', statValue(config, 'stat_nice')),
+    statRow('支持 16 bit 输出', yesNo(config.stat_16bit)),
+    statRow('支持 24 bit 输出', yesNo(config.stat_24bit)),
+    statRow('支持 32 bit 输出', yesNo(config.stat_32bit)),
+    statRow('支持原生 DSD', config.stat_dsd32be === 1 || config.stat_dsd32le === 1 ? 'yes' : 'no'),
+    statRow('正在播放', p?.Playing ? '是' : '否'),
+    statRow('播放文件', p?.PlayingName || statValue(config, 'stat_file')),
+    statRow('源', statValue(config, 'stat_source')),
+    statRow('输出', statValue(config, 'stat_output')),
+    statRow('ALSA 周期', statValue(config, 'stat_period_size')),
+    statRow('ALSA 缓冲', statValue(config, 'stat_buffer_size')),
   ]);
 }
 
@@ -481,18 +488,18 @@ function renderCard(config: Config, controls: Map<string, FieldControl>, save: (
   const asound = Array.isArray(config.asound) ? config.asound.map(String) : [];
   const cards = Array.isArray(config.cards) ? config.cards.map(String) : [];
   const options = cardsOptions(config);
-  const cardSelect = select(options[0]?.value || '0', options.length ? options : [{ value: '0', label: 'No cards detected' }]);
+  const cardSelect = select(options[0]?.value || '0', options.length ? options : [{ value: '0', label: '未检测到声卡' }]);
   cardSelect.disabled = !options.length;
   const form = renderFieldGroups('card', null, config, controls);
   const saveBtn = el('button', { class: 'btn-primary save-btn', type: 'button', onclick: save }, [svgIcon('check', 18), el('span', { text: '保存设置' })]);
   return el('div', { class: 'settings-card-body' }, [
     el('section', { class: 'settings-section' }, [
-      el('h3', { text: 'Card' }),
+      el('h3', { text: '声卡' }),
       el('p', { class: 'hint', text: '/etc/asound.conf:' }),
-      el('div', { class: 'mono-block', text: asound.join('\n') || 'File asound.conf not found.' }),
-      el('p', { class: 'hint', text: 'Available cards:' }),
+      el('div', { class: 'mono-block', text: asound.join('\n') || '未找到 asound.conf' }),
+      el('p', { class: 'hint', text: '可用声卡：' }),
       el('div', { class: 'mono-block', text: cards.join('\n') || '—' }),
-      settingRow('Select card', cardSelect, '切换声卡会停止当前播放并重新配置 ALSA'),
+      settingRow('选择声卡', cardSelect, '切换声卡会停止当前播放并重新配置 ALSA'),
       el('div', { class: 'button-row' }, [
         el('button', { class: 'btn-primary', type: 'button', disabled: !options.length, onclick: () => {
           if (!confirm('切换声卡会停止当前播放并重新配置音频，继续？')) return;
@@ -509,7 +516,7 @@ function renderAbout(config: Config): HTMLElement {
   const repo = 'https://github.com/harmonyosnews/album-player-ui';
   return el('div', { class: 'settings-about' }, [
     el('section', { class: 'settings-section' }, [
-      el('h3', { text: 'Album Player UI' }),
+      el('h3', { text: 'Album Player UI（APUI）' }),
       el('p', { class: 'hint', text: `APUI ${__APUI_VERSION__} · Apache License 2.0 · Copyright 2026 harmonyosnews` }),
       el('p', { class: 'hint', text: '独立 Web 前端，不包含、不修改 Album Player 音频引擎。' }),
       el('p', { class: 'hint', text: 'aplayer: 2.19 · 官方主页' }),
@@ -521,9 +528,9 @@ function renderAbout(config: Config): HTMLElement {
       ]),
     ]),
     el('section', { class: 'settings-section' }, [
-      el('h3', { text: 'Credits' }),
+      el('h3', { text: '致谢' }),
       el('p', { class: 'hint', text: 'Album Player for Linux — Programming: Igor Antonov; Web-UI: dimas.' }),
-      el('p', { class: 'hint', text: 'APUI settings layout is inspired by the official Album Player settings UI; APUI code is independently implemented.' }),
+      el('p', { class: 'hint', text: 'APUI 设置页布局参考官方 Album Player 设置界面；APUI 代码为独立实现。' }),
       el('p', { class: 'hint', text: '使用前请阅读 LICENSE、NOTICE、USER-AGREEMENT.md、DISCLAIMER.md。' }),
     ]),
   ]);

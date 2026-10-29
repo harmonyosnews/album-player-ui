@@ -66,13 +66,6 @@ const NAV: Array<{ section: string; items: Array<{ name: string; label: string; 
       { name: 'playlists', label: '播放列表', icon: 'list' },
     ],
   },
-  {
-    section: '系统',
-    items: [
-      { name: 'settings', label: '设置', icon: 'settings' },
-      { name: 'about', label: '关于', icon: 'info' },
-    ],
-  },
 ];
 
 function go(name: string, param?: string | number): void {
@@ -133,6 +126,7 @@ export function renderLayout(app: HTMLElement): LayoutRefs {
     },
   }) as HTMLInputElement;
 
+  const settingsBtn = iconButton('settings', '设置', () => { location.hash = '#/settings'; });
   const themeBtn = iconButton('moon', '切换主题', () => store.toggleTheme());
   const refreshBtn = iconButton('refresh', '刷新媒体库', () => {
     void store.refreshAlbums();
@@ -145,7 +139,7 @@ export function renderLayout(app: HTMLElement): LayoutRefs {
 
   const topbar = el('header', { class: 'topbar' }, [
     el('div', { class: 'search-wrap' }, [svgIcon('search', 18), search]),
-    el('div', { class: 'top-actions' }, [refreshBtn, themeBtn, fullBtn]),
+    el('div', { class: 'top-actions' }, [settingsBtn, refreshBtn, themeBtn, fullBtn]),
   ]);
 
   const offline = el('div', { class: 'offline-banner hidden' }, [

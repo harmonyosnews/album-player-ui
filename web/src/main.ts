@@ -31,7 +31,6 @@ function viewKey(s: AppState): string {
   if (s.route.name === 'home' || s.route.name === 'radio') {
     parts.push(s.radioTitle, s.radioPics.length);
   }
-  if (s.route.name === 'about') parts.push(s.online ? 1 : 0);
   if (s.route.name === 'settings') parts.push(s.busy ? 1 : 0);
   return parts.join('|');
 }

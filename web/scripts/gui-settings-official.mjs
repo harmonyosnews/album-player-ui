@@ -1,7 +1,7 @@
 import { chromium } from 'playwright-core';
-const exe = process.env.CHROMIUM_PATH || '/home/kele/.cache/ms-playwright/chromium-1243/chrome-linux64/chrome';
-const base = process.env.APUI_URL || 'http://192.168.101.133:7778/';
-const out = process.env.OUT_DIR || '/home/kele/aplayer/gui-test-screenshots';
+const exe = process.env.CHROMIUM_PATH || '/usr/bin/chromium';
+const base = process.env.APUI_URL || 'http://127.0.0.1:7778/';
+const out = process.env.OUT_DIR || './gui-test-screenshots';
 const errors = [];
 const browser = await chromium.launch({ executablePath: exe, headless: true, args: ['--no-sandbox'] });
 const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });

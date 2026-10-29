@@ -10,7 +10,7 @@ import type {
   ToastKind,
 } from '../api/types';
 
-export type RouteName = 'home' | 'albums' | 'album' | 'artists' | 'artist' | 'radio' | 'playlists' | 'browse' | 'settings' | 'about';
+export type RouteName = 'home' | 'albums' | 'album' | 'artists' | 'artist' | 'radio' | 'playlists' | 'browse' | 'settings';
 
 export interface Route {
   name: RouteName;

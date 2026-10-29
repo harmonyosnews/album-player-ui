@@ -22,7 +22,6 @@ export function renderView(refs: LayoutRefs, s: AppState): void {
     case 'playlists': return renderPlaylistView(view, s, 'playlists');
     case 'browse': return renderPlaylistView(view, s, 'browse');
     case 'settings': return renderSettings(view, s);
-    case 'about': return renderAbout(view, s);
     default: return renderHome(view, s);
   }
 }
@@ -384,31 +383,3 @@ function renderPlaylistView(view: HTMLElement, s: AppState, mode: 'playlists' | 
   view.append(page);
 }
 
-function renderAbout(view: HTMLElement, s: AppState): void {
-  const page = el('div', { class: 'page about-page' });
-  page.append(pageHeader('关于 APUI', 'Album Player 新版 Web 操作界面'));
-  page.append(el('section', { class: 'about-card' }, [
-    el('div', { class: 'about-mark' }, [svgIcon('disc', 46)]),
-    el('div', {}, [
-      el('h2', { text: `APUI ${__APUI_VERSION__}` }),
-      el('p', { class: 'hero-sub', text: '同源静态界面 · 不修改 aplayer 音频引擎' }),
-      el('div', { class: 'about-badges' }, [badge('aplayer 2.19'), badge(s.online ? '在线' : '离线', s.online ? 'badge-ok' : 'badge-danger'), badge('7778')]),
-    ]),
-  ]));
-  page.append(el('section', { class: 'settings-section' }, [
-    el('h3', { text: '运行状态' }),
-    statRow('播放器', s.online ? '在线' : '离线'),
-    statRow('当前专辑', s.player?.Album != null ? String(s.player.Album) : '—'),
-    statRow('当前曲目', s.player?.PlayingName || '—'),
-    statRow('采样率', s.player?.Freq ? `${s.player.Freq} Hz` : '—'),
-    statRow('位深/声道', s.player ? `${s.player.Bps} bit / ${s.player.Ch} ch` : '—'),
-    statRow('媒体库', s.albums ? `${albumList(s).length} 项` : '—'),
-  ]));
-  page.append(el('section', { class: 'settings-section' }, [
-    el('h3', { text: '能力与边界' }),
-    el('p', { class: 'hint', text: '已实现：专辑/曲目浏览、播放/暂停/停止/上下曲/进度、网络电台、播放列表、文件浏览、常用设置、现在播放。' }),
-    el('p', { class: 'hint', text: '未实现（aplayer 无对应接口）：队列编辑、歌词、标签编辑、智能推荐、多房间。' }),
-    el('p', { class: 'hint', text: '安全提示：仅限可信局域网使用；aplayer 接口本身无登录。' }),
-  ]));
-  view.append(page);
-}

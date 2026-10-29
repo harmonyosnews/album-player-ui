@@ -1,14 +1,21 @@
 import type { Route, RouteName } from './store';
 import { store } from './store';
 
-const KNOWN: RouteName[] = ['home', 'albums', 'album', 'artists', 'artist', 'radio', 'playlists', 'browse', 'settings', 'about'];
+import { setSettingsTab } from './views/settings';
+
+const KNOWN: RouteName[] = ['home', 'albums', 'album', 'artists', 'artist', 'radio', 'playlists', 'browse', 'settings'];
 
 export function parseHash(): Route {
   const raw = location.hash.replace(/^#\/?/, '').replace(/\/+$/, '');
   if (!raw) return { name: 'home' };
   const parts = raw.split('/');
-  const name = parts[0] as RouteName;
-  if (!KNOWN.includes(name)) return { name: 'home' };
+  const rawName = parts[0];
+  if (rawName === 'about') {
+    setSettingsTab('about');
+    return { name: 'settings' };
+  }
+  if (!KNOWN.includes(rawName as RouteName)) return { name: 'home' };
+  const name = rawName as RouteName;
   if (name === 'album') {
     const n = Number(parts[1]);
     return Number.isFinite(n) ? { name, album: n } : { name: 'albums' };
@@ -24,7 +31,11 @@ export function parseHash(): Route {
 }
 
 export function startRouter(): void {
-  const apply = () => store.setRoute(parseHash());
+  const apply = () => {
+    const route = parseHash();
+    if (/^#\/about\/?$/.test(location.hash)) history.replaceState(null, '', '#/settings');
+    store.setRoute(route);
+  };
   window.addEventListener('hashchange', apply);
   apply();
 }

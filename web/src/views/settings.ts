@@ -208,10 +208,10 @@ const FIELDS: FieldSpec[] = [
   { key: 'affinity_mode', label: 'CPU 核心选择', kind: 'select', tab: 'system', options: AFFINITY },
 
   // 声卡 → Scream 桥
-  { key: 'ch_scr', label: 'Scream 桥', kind: 'bool', tab: 'card' },
-  { key: 'ch_tcp', label: 'TCP', kind: 'bool', tab: 'card' },
-  { key: 'ip_scr', label: '接收端 IP', kind: 'string', tab: 'card' },
-  { key: 'pt_scr', label: '端口', kind: 'int', tab: 'card', min: 1, max: 65535 },
+  { key: 'ch_scr', label: '启用', kind: 'bool', tab: 'card', group: 'Scream 桥' },
+  { key: 'ch_tcp', label: 'TCP', kind: 'bool', tab: 'card', group: 'Scream 桥' },
+  { key: 'ip_scr', label: '接收端 IP', kind: 'string', tab: 'card', group: 'Scream 桥' },
+  { key: 'pt_scr', label: '端口', kind: 'int', tab: 'card', min: 1, max: 65535, group: 'Scream 桥' },
 ];
 
 const MAIN_KEY = 'apui.settings.tab';

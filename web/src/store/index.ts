@@ -1,6 +1,6 @@
 import { api, ApiError, bumpImageCache, postConfig } from '../api/client';
-import { buildPayload, normaliseRoot, validatePayload } from '../api/config-fields';
-import { clampInt } from '../api/sanitize';
+import { buildPayload, normalizeConfigValue, normaliseRoot, validatePayload } from '../api/config-fields';
+import { clampInt, cleanDisplayName } from '../api/sanitize';
 import type {
   AlbumsResponse,
   AplayerState,
@@ -58,6 +58,7 @@ export interface AppState {
   libraryLoading: boolean;
   deferredLibraryReload: boolean;
   configRev: number;
+  scanRev: number;
 }
 
 type Listener = (state: AppState) => void;
@@ -99,6 +100,7 @@ class Store {
     libraryLoading: false,
     deferredLibraryReload: false,
     configRev: 0,
+    scanRev: 0,
   };
 
   private listeners = new Set<Listener>();
@@ -108,6 +110,8 @@ class Store {
   private lastRadioFetch = 0;
   private toastTimer: number | undefined;
   private radioQueue: Promise<void> = Promise.resolve();
+  private libraryQueue: Promise<unknown> = Promise.resolve();
+  private scanRefreshPending = false;
 
   get(): AppState {
     return this.state;
@@ -145,6 +149,7 @@ class Store {
         const radioAlbums = await api.getAlbums();
         this.set({ radioAlbums, radioMode: true });
       } else {
+        if (player.Scanning) await this.waitForScan();
         albums = await api.getAlbums();
         if (String(config.root_folder || '').trim()) {
           await this.ensureLibrary(true);
@@ -187,7 +192,108 @@ class Store {
     this.applyTheme();
   }
 
+  // ---------- scanning ----------
+
+  /**
+   * aplayer 在 GetPlaylist 后异步扫描目录，扫描完成前 GetAlbums 可能为空或仍是旧列表。
+   * 原版 UI 会轮询 State.Scanning 并在扫描结束后再取专辑；这里保持同样的时序。
+   */
+  private async waitForScan(timeoutMs = 60000): Promise<void> {
+    const deadline = Date.now() + timeoutMs;
+    let player: AplayerState;
+    try {
+      player = await api.getState();
+    } catch {
+      return;
+    }
+    this.set({ player, online: true, radioMode: player.RadioMode, error: '' });
+    while (player.Scanning && Date.now() < deadline) {
+      await sleep(250);
+      try {
+        player = await api.getState();
+      } catch {
+        return;
+      }
+      this.set({ player, online: true, radioMode: player.RadioMode, error: '' });
+    }
+  }
+
+  private async fetchAlbumsAfterScan(): Promise<AlbumsResponse> {
+    // 先读一次 State：GetPlaylist 返回时扫描可能刚开始，state 里还没有 Scanning=true。
+    await this.waitForScan();
+    let albums = await api.getAlbums();
+    if (!albums.Albums.length && !albums.AlbumList.length) {
+      await sleep(350);
+      albums = await api.getAlbums();
+    }
+    return albums;
+  }
+
+  /** 扫描结束后刷新当前曲库视图，并丢弃扫描过程中缓存的旧曲目。 */
+  private async handleScanComplete(): Promise<void> {
+    if (this.scanRefreshPending) return;
+    this.scanRefreshPending = true;
+    try {
+      let albums = await api.getAlbums();
+      if (!albums.Albums.length && !albums.AlbumList.length) {
+        await sleep(350);
+        albums = await api.getAlbums();
+      }
+      if (!albums.Albums.length && !albums.AlbumList.length) return;
+      if (this.state.radioMode) {
+        this.set({
+          radioAlbums: albums,
+          radioSongs: new Map(),
+          radioSongsRev: this.state.radioSongsRev + 1,
+          radioLibraryRev: this.state.radioLibraryRev + 1,
+          scanRev: this.state.scanRev + 1,
+          online: true,
+        });
+      } else {
+        this.set({
+          albums,
+          songs: new Map(),
+          songsRev: this.state.songsRev + 1,
+          libraryRev: this.state.libraryRev + 1,
+          scanRev: this.state.scanRev + 1,
+          online: true,
+        });
+      }
+    } catch {
+      /* keep the previous view if the refresh fails */
+    } finally {
+      this.scanRefreshPending = false;
+    }
+  }
+
+  private async fetchSongs(album: number): Promise<SongsResponse> {
+    const rev = this.state.scanRev;
+    if (this.state.player?.Scanning) await this.waitForScan();
+    let data = await api.getSongs(album);
+    if (rev !== this.state.scanRev) {
+      // 扫描在请求期间结束，重新读取，避免把扫描中的整轨 WAV 当成最终曲目
+      await this.waitForScan();
+      data = await api.getSongs(album);
+    } else if (this.state.player?.Scanning) {
+      await this.waitForScan();
+      data = await api.getSongs(album);
+    }
+    if (!data.Songs?.length) {
+      await sleep(300);
+      const retry = await api.getSongs(album);
+      if (retry.Songs?.length) data = retry;
+    }
+    return data;
+  }
+
   // ---------- library ----------
+
+  /** 串行化目录载入，避免首页自动载入和用户点“载入”互相覆盖。 */
+  private enqueueLibrary<T>(fn: () => Promise<T>): Promise<T> {
+    const next = this.libraryQueue.then(fn, fn);
+    this.libraryQueue = next.catch(() => undefined);
+    return next;
+  }
 
   private findDriveIndex(pl: PlaylistsResponse, root: string): number | null {
     const target = normaliseRoot(root);
@@ -204,6 +310,10 @@ class Store {
   }
 
   async ensureLibrary(force = false): Promise<boolean> {
+    return this.enqueueLibrary(() => this.ensureLibraryNow(force));
+  }
+
+  private async ensureLibraryNow(force = false): Promise<boolean> {
     const root = String(this.state.config?.root_folder || '').trim();
     if (!root || this.state.libraryLoading) return false;
     if (this.state.player?.Playing || this.state.player?.Paused) {
@@ -217,9 +327,9 @@ class Store {
       const idx = this.findDriveIndex(pl, root);
       if (idx == null) return false;
       if (!force && this.state.activePlaylistIndex === idx && this.state.libraryRootIndex === idx) return true;
-      await api.getPlaylist(idx);
-      await sleep(700);
-      const albums = await api.getAlbums();
+      const result = await api.getPlaylist(idx);
+      if (result.Result !== 'OK') return false;
+      const albums = await this.fetchAlbumsAfterScan();
       if (!albums.Albums.length && !albums.AlbumList.length) return false;
       this.set({
         albums,
@@ -231,6 +341,9 @@ class Store {
         deferredLibraryReload: false,
       });
       return true;
+    } catch (e) {
+      this.toast(this.describeError(e), 'error');
+      return false;
     } finally {
       this.set({ libraryLoading: false });
     }
@@ -238,14 +351,17 @@ class Store {
 
   async refreshAlbums(): Promise<void> {
     try {
+      if (this.state.player?.Scanning) await this.waitForScan();
       let albums = await api.getAlbums();
       if (this.state.radioMode) {
         this.set({ radioAlbums: albums, radioLibraryRev: this.state.radioLibraryRev + 1, online: true });
         return;
       }
       if (!albums.Albums.length && !albums.AlbumList.length) {
-        await this.ensureLibrary();
-        albums = this.state.albums || albums;
+        if (this.state.route.name === 'home') {
+          await this.ensureLibrary();
+          albums = this.state.albums || albums;
+        }
       }
       this.set({ albums, songs: new Map(), songsRev: this.state.songsRev + 1, online: true, libraryRev: this.state.libraryRev + 1 });
     } catch (e) {
@@ -256,7 +372,7 @@ class Store {
   async loadSongs(album: number): Promise<void> {
     if (this.state.songs.has(album)) return;
     try {
-      const data = await api.getSongs(album);
+      const data = await this.fetchSongs(album);
       const songs = new Map(this.state.songs);
       songs.set(album, data);
       this.set({ songs, songsRev: this.state.songsRev + 1 });
@@ -268,7 +384,7 @@ class Store {
   async loadRadioSongs(album: number): Promise<void> {
     if (this.state.radioSongs.has(album)) return;
     try {
-      const data = await api.getSongs(album);
+      const data = await this.fetchSongs(album);
       const songs = new Map(this.state.radioSongs);
       songs.set(album, data);
       this.set({ radioSongs: songs, radioSongsRev: this.state.radioSongsRev + 1 });
@@ -280,8 +396,10 @@ class Store {
   // ---------- playback ----------
 
   async refreshState(): Promise<void> {
+    const wasScanning = !!this.state.player?.Scanning;
     const player = await api.getState();
     this.set({ player, online: true, radioMode: player.RadioMode, error: '' });
+    if (wasScanning && !player.Scanning) void this.handleScanComplete();
     if (player.RadioMode && Date.now() - this.lastRadioFetch > 5000) {
       await this.refreshRadio();
     }
@@ -660,29 +778,111 @@ class Store {
     }
   }
 
-  async expandPlaylists(index: number): Promise<void> {
+  async expandPlaylists(index: number, path = ''): Promise<void> {
     try {
-      const playlists = await api.getPlaylists(index);
+      let target = index;
+      if (path) {
+        const fresh = await api.getPlaylists(-1);
+        const match = fresh.Drives.map((drive, i) => ({ drive, i })).find(({ drive }) => drive.path === path);
+        if (!match) {
+          this.set({ playlists: fresh });
+          this.toast('目录已变化，已刷新文件浏览', 'warn');
+          return;
+        }
+        target = match.i;
+      }
+      const playlists = await api.getPlaylists(target);
       this.set({ playlists });
     } catch (e) {
       this.toast(this.describeError(e), 'error');
     }
   }
 
-  async loadPlaylist(index: number): Promise<void> {
+  async loadPlaylist(index: number, path = '', name = ''): Promise<void> {
+    return this.enqueueLibrary(() => this.loadPlaylistNow(index, path, name));
+  }
+
+  private async loadPlaylistNow(index: number, path: string, name: string): Promise<void> {
     this.setBusy(true);
     try {
-      await api.getPlaylist(index);
-      this.set({ activePlaylistIndex: index });
-      await sleep(600);
-      await this.refreshAlbums();
+      // 树索引会随展开/折叠变化；点击时按路径重新解析，避免载入相邻目录。
+      let target = index;
+      let pl: PlaylistsResponse | null = null;
+      try {
+        pl = await api.getPlaylists(-1);
+        this.set({ playlists: pl });
+      } catch {
+        /* fall back to the rendered index */
+      }
+      if (pl) {
+        const entries = pl.Drives.map((drive, i) => ({ drive, i }));
+        if (path) {
+          const match = entries.find(({ drive }) => drive.path === path);
+          if (!match) throw new Error('目录已变化，请刷新文件浏览后重试');
+          target = match.i;
+        } else if (name) {
+          const match = entries.find(({ drive }) => drive.path === '' && drive.name === name);
+          if (!match) throw new Error('列表已变化，请刷新后重试');
+          target = match.i;
+        }
+        if (target < 0 || target >= pl.Drives.length) throw new Error('目录已变化，请刷新文件浏览后重试');
+      } else if (path || name) {
+        throw new Error('无法读取目录，请稍后重试');
+      }
+      const result = await api.getPlaylist(target);
+      if (result.Result !== 'OK') throw new Error(result.Result || '载入失败');
+      this.set({ activePlaylistIndex: target, libraryRootIndex: null });
+      const albums = await this.fetchAlbumsAfterScan();
+      bumpImageCache();
+      this.set({
+        albums,
+        songs: new Map(),
+        songsRev: this.state.songsRev + 1,
+        libraryRev: this.state.libraryRev + 1,
+        online: true,
+        deferredLibraryReload: false,
+      });
+      if (!albums.Albums.length && !albums.AlbumList.length) {
+        this.toast('该目录没有可播放的专辑', 'warn');
+      } else {
+        this.toast('播放列表已载入', 'success');
+      }
       if (location.hash !== '#/albums') location.hash = '#/albums';
-      this.toast('播放列表已载入', 'success');
     } catch (e) {
       this.toast(this.describeError(e), 'error');
     } finally {
       this.setBusy(false);
     }
+  }
+
+  /**
+   * 用于 WAV+CUE 专辑只显示整轨时的修复：打开 cue_mode 会改变后续扫描结果，
+   * 必须重新 GetPlaylist 触发扫描，单靠刷新 GetAlbums 不会重新分轨。
+   */
+  async enableCueAndReload(albumIndex: number, albumName: string): Promise<void> {
+    const ok = await this.saveSettings({ cue_mode: true });
+    if (!ok) return;
+    const idx = this.state.activePlaylistIndex;
+    if (idx == null) {
+      this.toast('已启用“使用 .cue”，请重新载入该专辑目录', 'success');
+      return;
+    }
+    await this.loadPlaylist(idx);
+    const albums = this.state.albums;
+    if (!albums) return;
+    const n = Math.max(albums.AlbumList?.length || 0, albums.Albums?.length || 0);
+    let target = albumIndex >= 0 && albumIndex < n ? albumIndex : -1;
+    if (target < 0) {
+      for (let i = 0; i < n; i++) {
+        const name = cleanDisplayName(albums.AlbumList?.[i] || albums.Albums?.[i] || '');
+        if (name === albumName) {
+          target = i;
+          break;
+        }
+      }
+    }
+    if (target >= 0) location.hash = `#/album/${target}`;
+    this.toast('已启用“使用 .cue”并重新载入', 'success');
   }
 
   async savePlaylist(name: string): Promise<boolean> {
@@ -737,8 +937,10 @@ class Store {
       const body = await postConfig(payload);
       if (!/saved/i.test(body)) throw new Error(body || '保存失败');
       const after = await api.getConfig();
-      for (const key of ['covers', 'root_folder', 'volume_enabled', 'dop_mode', 'pframes']) {
-        if (JSON.stringify(after[key]) !== JSON.stringify(payload[key])) {
+      for (const key of ['covers', 'root_folder', 'volume_enabled', 'dop_mode', 'pframes', 'cue_mode', 'tags_mode', 'ch_scr', 'ch_tcp']) {
+        const expected = normalizeConfigValue(key, payload[key]);
+        const actual = normalizeConfigValue(key, after[key]);
+        if (JSON.stringify(expected) !== JSON.stringify(actual)) {
           throw new Error(`保存后校验失败: ${key}`);
         }
       }
@@ -772,7 +974,7 @@ class Store {
     this.setBusy(true);
     try {
       await api.updateCatalog(replace);
-      await sleep(1200);
+      await this.waitForScan(60000);
       if (this.state.radioMode) {
         const albums = await api.getAlbums();
         this.set({

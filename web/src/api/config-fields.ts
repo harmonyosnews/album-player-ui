@@ -19,11 +19,45 @@ export const WRITABLE_FIELDS = [
 
 export type WritableField = typeof WRITABLE_FIELDS[number];
 
+// aplayer 的配置字段类型并不统一：大多数开关是 true/false，但个别字段只接受 1/0。
+// 例如 ch_scr/ch_tcp 收到 true 会被存成 0，cue_mode 收到 1 会被存成 false。
+// 因此保存前必须按厂商原版 UI 的约定转换类型，否则勾选“保存”后会被静默丢弃。
+const BOOL_FIELDS = new Set<string>([
+  'gapless_mode', 'preload_mode', 'mode_16bit', 'mode_24bit', 'sacd_full',
+  'dvda_nomix', 'pcm_mult', 'volume_enabled', 'auto_mode', 'cue_mode',
+  'tags_mode', 'lock_memory', 'multi_mode', 'swap_mode', 'phase_mode',
+  'soxr_filter', 'soxr_quality', 'radio_pict', 'radio_proxy', 'radio_ua',
+  'use_conv', 'hw_volume',
+]);
+
+const INT_BOOL_FIELDS = new Set<string>([
+  'win1251', 'api_flag', 'radio_auto', 'enable_dsd', 'multithread', 'ch_scr', 'ch_tcp',
+]);
+
+export function configBool(value: unknown): boolean {
+  if (typeof value === 'boolean') return value;
+  if (typeof value === 'number') return value !== 0;
+  if (typeof value === 'string') {
+    const v = value.trim().toLowerCase();
+    return v === '1' || v === 'true' || v === 'on' || v === 'yes';
+  }
+  return false;
+}
+
+export function normalizeConfigValue(key: string, value: unknown): unknown {
+  if (BOOL_FIELDS.has(key)) return configBool(value);
+  if (INT_BOOL_FIELDS.has(key)) return configBool(value) ? 1 : 0;
+  return value;
+}
+
 export function buildPayload(config: Config, patch: Record<string, unknown>): Record<string, unknown> {
   const out: Record<string, unknown> = {};
   for (const key of WRITABLE_FIELDS) {
-    if (Object.prototype.hasOwnProperty.call(patch, key)) out[key] = patch[key];
-    else if (Object.prototype.hasOwnProperty.call(config, key)) out[key] = config[key];
+    let value: unknown;
+    if (Object.prototype.hasOwnProperty.call(patch, key)) value = patch[key];
+    else if (Object.prototype.hasOwnProperty.call(config, key)) value = config[key];
+    else continue;
+    out[key] = normalizeConfigValue(key, value);
   }
   return out;
 }
@@ -59,6 +93,8 @@ export function validatePayload(p: Record<string, unknown>): string[] {
     win1251: [0, 1],
     api_flag: [0, 1],
     radio_auto: [0, 1],
+    ch_scr: [0, 1],
+    ch_tcp: [0, 1],
   };
   for (const [key, allowed] of Object.entries(enums)) {
     if (!allowed.includes(p[key] as number)) errors.push(`${key} 必须是 ${allowed.join('/')} 之一`);

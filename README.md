@@ -2,11 +2,11 @@
 
 GitHub: <https://github.com/harmonyosnews/album-player-ui>
 
-**APUI 1.0.0 已发布。** 这是一个与 aplayer 同源的静态 SPA，替换 `/opt/aplayer/aplayer.html` 后由 aplayer 在 **7778** 端口提供；不新增服务/端口，不改音频引擎。
+**APUI 1.0.1 已发布。** 这是一个与 aplayer 同源的静态 SPA，替换 `/opt/aplayer/aplayer.html` 后由 aplayer 在 **7778** 端口提供；不新增服务/端口，不改音频引擎。
 
-- 构建：Vite 7 + TypeScript；JS 77.2 KB（gzip 24.0 KB）、CSS 35.7 KB（gzip 7.4 KB）。
-- 发布包：[release/apui-web-1.0.0.tar.gz](release/apui-web-1.0.0.tar.gz)（47 KB），sha256 `8a6c008361cebc039ffffcca284c9265ba6bf231714b8126c1422d57df447929`（`sha256sum -c SHA256SUMS`）。
-- 已验证：`.133`（x86 构建/联调）、`.230`（ARM 冒烟）、`.137`（Gentooplayer 实机 45 张专辑曲库、当前队列、真实 FLAC 44.1/16/2 播放）。
+- 构建：Vite 7 + TypeScript；JS 82.3 KB（gzip 25.4 KB）、CSS 35.8 KB（gzip 7.5 KB）。
+- 发布包：[release/apui-web-1.0.1.tar.gz](release/apui-web-1.0.1.tar.gz)（49 KB），sha256 `0793ad88ffa9be4fbad304bb4838c84eda523da86266202a0f7f660a0b28d1f6`（`sha256sum -c SHA256SUMS`）。
+- 已验证：`.133`（x86 构建/联调）、`.230`（ARM 冒烟）、`.137`（Gentooplayer 实机 45 张专辑曲库、当前队列、真实 FLAC 44.1/16/2 播放）；1.0.1 另在本地 aplayer 2.19 上回归了 WAV+CUE 分轨、文件浏览载入、电台返回分类和 Scream 桥保存。
 - 验收记录：[docs/06-实施与验收记录.md](docs/06-实施与验收记录.md)。
 
 ---
@@ -73,14 +73,14 @@ cd web
 npm ci
 npm run build
 npm run check
-npm run package                     # 生成 release/apui-web-1.0.0.tar.gz
+npm run package                     # 生成 release/apui-web-1.0.1.tar.gz
 ```
 
 ### 安装（热替换，无需重启 aplayer）
 
 ```bash
-tar -xzf apui-web-1.0.0.tar.gz
-cd apui-web-1.0.0
+tar -xzf apui-web-1.0.1.tar.gz
+cd apui-web-1.0.1
 ./install.sh /opt/aplayer
 # 浏览器打开 http://<player>:7778/
 ```
@@ -161,6 +161,7 @@ cd apui-web-1.0.0
 
 | 版本 | 日期 | 变更 |
 |---|---|---|
+| 1.0.1 | 2026-11-05 | 修复 WAV+CUE 分轨、文件浏览载入错目录、电台“返回分类”、Scream 桥勾选不保存；目录载入按 `State.Scanning` 等待扫描 |
 | 1.0.0 | 2026-10-29 | 里程碑：统一设置/队列/英雄页/移动端；封面切换刷新；发布 1.0.0 使用手册与截图 |
 | 0.2.21 | 2026-10-29 | 移动端专辑网格 3 列；底栏“设置”改为“文件”；三机部署 |
 | 0.2.20 | 2026-10-29 | 移动端底栏加粗；播放按钮/图标居中；控制组精确居中 |

@@ -65,11 +65,14 @@ export function pageHeader(title: string, subtitle = '', actions: HTMLElement[] 
   ]);
 }
 
-export function backButton(label: string, target: string): HTMLButtonElement {
+export function backButton(label: string, target: string, onClick?: () => void): HTMLButtonElement {
   return el('button', {
     class: 'btn-text back-btn',
     type: 'button',
-    onclick: () => { location.hash = target; },
+    onclick: () => {
+      if (onClick) onClick();
+      else location.hash = target;
+    },
   }, [svgIcon('chevronRight', 16), el('span', { text: label })]);
 }
 

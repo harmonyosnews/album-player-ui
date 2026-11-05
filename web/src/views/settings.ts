@@ -1,4 +1,5 @@
 import type { Config } from '../api/types';
+import { configBool } from '../api/config-fields';
 import type { AppState } from '../store';
 import { store } from '../store';
 import { checkbox, numberInput, select, settingRow, statRow, textInput } from '../ui/components';
@@ -143,7 +144,7 @@ const FIELDS: FieldSpec[] = [
   { key: 'hw_volume', label: '硬件音量', kind: 'bool', tab: 'general', sub: 'volume', group: '音量' },
   { key: 'hw_index', label: '硬件参数', kind: 'hw_index', tab: 'general', sub: 'volume', group: '音量' },
   { key: 'auto_mode', label: '自动下一专辑', kind: 'bool', tab: 'general', sub: 'library', group: '媒体库选项' },
-  { key: 'cue_mode', label: '使用 .cue', kind: 'bool', tab: 'general', sub: 'library', group: '媒体库选项' },
+  { key: 'cue_mode', label: '使用 .cue', kind: 'bool', tab: 'general', sub: 'library', group: '媒体库选项', hint: 'WAV+CUE 专辑按 CUE 分轨' },
   { key: 'tags_mode', label: '使用标签', kind: 'bool', tab: 'general', sub: 'library', group: '媒体库选项' },
   { key: 'win1251', label: 'Windows-1251 标签', kind: 'intbool', tab: 'general', sub: 'library', group: '媒体库选项' },
   { key: 'pframes', label: 'ALSA 周期 (frames)', kind: 'int', tab: 'general', sub: 'alsa', group: 'ALSA', min: 1, max: 1000000 },
@@ -215,8 +216,8 @@ const FIELDS: FieldSpec[] = [
   { key: 'affinity_mode', label: 'CPU 核心选择', kind: 'select', tab: 'system', options: AFFINITY },
 
   // 声卡 → Scream 桥
-  { key: 'ch_scr', label: '启用', kind: 'bool', tab: 'card', group: 'Scream 桥' },
-  { key: 'ch_tcp', label: 'TCP', kind: 'bool', tab: 'card', group: 'Scream 桥' },
+  { key: 'ch_scr', label: '启用', kind: 'intbool', tab: 'card', group: 'Scream 桥' },
+  { key: 'ch_tcp', label: 'TCP', kind: 'intbool', tab: 'card', group: 'Scream 桥' },
   { key: 'ip_scr', label: '接收端 IP', kind: 'string', tab: 'card', group: 'Scream 桥' },
   { key: 'pt_scr', label: '端口', kind: 'int', tab: 'card', min: 1, max: 65535, group: 'Scream 桥' },
 ];
@@ -246,7 +247,7 @@ function hwOptions(config: Config): Array<{ value: string; label: string }> {
 function fieldControl(spec: FieldSpec, config: Config): FieldControl {
   const current = config[spec.key];
   if (spec.kind === 'bool' || spec.kind === 'intbool') {
-    const box = checkbox(spec.kind === 'intbool' ? current === 1 || current === true : current === true);
+    const box = checkbox(configBool(current));
     return { node: box, get: () => (spec.kind === 'intbool' ? (box.checked ? 1 : 0) : box.checked) };
   }
   if (spec.kind === 'int') {

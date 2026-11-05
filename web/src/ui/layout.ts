@@ -97,6 +97,8 @@ function navLink(item: { name: string; label: string; icon: string }, mobile = f
       'data-route': item.name,
       onclick: (e: Event) => {
         e.preventDefault();
+        // 从电台分类再次进入“网络电台”时回到分类列表
+        if (item.name === 'radio' && store.get().radioMode) store.setRadioCategory(null);
         go(item.name);
       },
     },

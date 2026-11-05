@@ -1,4 +1,5 @@
 import { imageUrl } from '../api/client';
+import { configBool } from '../api/config-fields';
 import { cleanDisplayName, formatFormat, safeUrl } from '../api/sanitize';
 import type { AlbumVM } from '../api/types';
 import type { AppState } from '../store';
@@ -154,6 +155,20 @@ function renderAlbumDetail(view: HTMLElement, s: AppState): void {
       list.append(trackRow(title, i, songs.SongsLen?.[i], isCurrent(s, album.index, i), () => void store.play(album.index, i)));
     });
     page.append(sectionHeader('曲目', el('span', { class: 'muted', text: `${songs.Songs.length} 首` })), list);
+    const singleRaw = songs.Songs.length === 1 ? String(songs.Songs[0] || '') : '';
+    const singleLen = songs.SongsLen?.[0] || 0;
+    const cueLike = /\.wav$/i.test(singleRaw)
+      && (/cue/i.test([album.name, album.display].join(' ')) || singleLen > 10 * 60 * 1000);
+    if (cueLike && s.config && !configBool(s.config.cue_mode)) {
+      page.append(el('div', { class: 'inline-warn cue-hint' }, [
+        el('span', { text: '这张专辑只有一条整轨 WAV。若它包含 CUE 分轨，启用“使用 .cue”后会按曲目显示。' }),
+        el('button', {
+          class: 'btn-secondary small',
+          type: 'button',
+          onclick: () => void store.enableCueAndReload(album.index, album.name),
+        }, [el('span', { text: '启用 .cue 并重新载入' })]),
+      ]));
+    }
   }
   view.append(page);
 }
@@ -242,7 +257,10 @@ function renderRadio(view: HTMLElement, s: AppState): void {
     view.append(page);
     return;
   }
-  page.append(backButton('返回分类', '#/radio'));
+  page.append(backButton('返回分类', '#/radio', () => {
+    store.setRadioCategory(null);
+    if (location.hash !== '#/radio') location.hash = '#/radio';
+  }));
   page.append(el('section', { class: 'album-hero compact' }, [
     coverImage(cat.cover, 'album-hero-cover', 50),
     el('div', { class: 'album-hero-info' }, [
@@ -355,12 +373,12 @@ function renderPlaylistView(view: HTMLElement, s: AppState, mode: 'playlists' | 
       const expanded = drive.expanded === 1;
       actionButtons.push(el('button', {
         class: 'btn-secondary small', type: 'button', title: expanded ? '折叠目录' : '展开目录',
-        onclick: () => void store.expandPlaylists(index),
+        onclick: () => void store.expandPlaylists(index, drive.path),
       }, [svgIcon(expanded ? 'chevronDown' : 'chevronRight', 14), el('span', { text: expanded ? '折叠' : '展开' })]));
     }
     actionButtons.push(el('button', {
       class: 'btn-secondary small', type: 'button', title: '载入为当前播放列表',
-      onclick: () => void store.loadPlaylist(index),
+      onclick: () => void store.loadPlaylist(index, drive.path, drive.name),
     }, [el('span', { text: '载入' })]));
     if (mode === 'playlists' && isPlaylistFile && drive.name !== 'aplayer.dat') {
       actionButtons.push(el('button', {
